@@ -70,4 +70,4 @@ Em caso de dúvidas, sugestões ou problemas, sinta-se à vontade para abrir uma
 
 ---
 
-Desenvolvido com ❤️ por Seu Nome
+Desenvolvido por Lucca Goltzman
