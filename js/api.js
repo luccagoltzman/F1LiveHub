@@ -1,26 +1,39 @@
+import axios from 'https://cdn.jsdelivr.net/npm/axios@1.6.7/+esm';
+
 /**
- * Módulo de API que encapsula chamadas à API Ergast Formula 1
- * Documentação: http://ergast.com/mrd/
+ * Módulo de API que encapsula chamadas à API da Fórmula 1
+ * Usando API-FORMULA-1 da RapidAPI com Axios
  */
 const F1API = (() => {
-    // URL base da API
-    const BASE_URL = 'https://ergast.com/api/f1';
+    // Configurações da API
+    const API_KEY = '7fc653acb1msh0b8c41b18cbd262p1f1eaejsnabce07a133b9';
+    const BASE_URL = 'https://api-formula-1.p.rapidapi.com';
     
+    // Configuração base do Axios
+    const apiConfig = {
+        headers: {
+            'x-rapidapi-key': API_KEY,
+            'x-rapidapi-host': 'api-formula-1.p.rapidapi.com'
+        }
+    };
+
     /**
-     * Função para fazer uma chamada à API Ergast
+     * Função para fazer uma chamada à API
      * @param {string} endpoint - O endpoint a ser chamado
+     * @param {Object} params - Parâmetros da requisição (opcional)
      * @returns {Promise} - Uma promise com os dados da resposta
      */
-    const fetchData = async (endpoint) => {
+    const fetchData = async (endpoint, params = {}) => {
         try {
-            const response = await fetch(`${BASE_URL}${endpoint}.json`);
-            
-            if (!response.ok) {
-                throw new Error(`Erro na API: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
+            const options = {
+                method: 'GET',
+                url: `${BASE_URL}${endpoint}`,
+                params,
+                ...apiConfig
+            };
+
+            const response = await axios.request(options);
+            return response.data;
         } catch (error) {
             console.error('Erro ao buscar dados da API:', error);
             throw error;
@@ -28,48 +41,53 @@ const F1API = (() => {
     };
     
     /**
-     * Obter lista de pilotos da temporada atual
+     * Obter lista de pilotos da temporada
+     * @param {string} season - Ano da temporada (opcional, padrão 2025)
      * @returns {Promise} - Promise com a lista de pilotos
      */
-    const getCurrentDrivers = async () => {
-        const data = await fetchData('/current/drivers');
-        return data.MRData.DriverTable.Drivers;
+    const getCurrentDrivers = async (season = '2025') => {
+        const data = await fetchData('/rankings/drivers', { season });
+        return data.response;
     };
     
     /**
-     * Obter lista de equipes da temporada atual
+     * Obter lista de equipes da temporada
+     * @param {string} season - Ano da temporada (opcional, padrão 2025)
      * @returns {Promise} - Promise com a lista de equipes
      */
-    const getCurrentConstructors = async () => {
-        const data = await fetchData('/current/constructors');
-        return data.MRData.ConstructorTable.Constructors;
+    const getCurrentConstructors = async (season = '2025') => {
+        const data = await fetchData('/rankings/teams', { season });
+        return data.response;
     };
     
     /**
-     * Obter calendário de corridas da temporada atual
+     * Obter calendário de corridas da temporada
+     * @param {string} season - Ano da temporada (opcional, padrão 2025)
      * @returns {Promise} - Promise com a lista de corridas
      */
-    const getCurrentRaces = async () => {
-        const data = await fetchData('/current');
-        return data.MRData.RaceTable.Races;
+    const getCurrentRaces = async (season = '2025') => {
+        const data = await fetchData('/races', { season });
+        return data.response;
     };
     
     /**
-     * Obter a classificação de pilotos da temporada atual
+     * Obter a classificação de pilotos da temporada
+     * @param {string} season - Ano da temporada (opcional, padrão 2025)
      * @returns {Promise} - Promise com a classificação de pilotos
      */
-    const getCurrentDriverStandings = async () => {
-        const data = await fetchData('/current/driverStandings');
-        return data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+    const getCurrentDriverStandings = async (season = '2025') => {
+        const data = await fetchData('/rankings/drivers', { season });
+        return data.response;
     };
     
     /**
-     * Obter a classificação de construtores da temporada atual
+     * Obter a classificação de construtores da temporada
+     * @param {string} season - Ano da temporada (opcional, padrão 2025)
      * @returns {Promise} - Promise com a classificação de construtores
      */
-    const getCurrentConstructorStandings = async () => {
-        const data = await fetchData('/current/constructorStandings');
-        return data.MRData.StandingsTable.StandingsLists[0].ConstructorStandings;
+    const getCurrentConstructorStandings = async (season = '2025') => {
+        const data = await fetchData('/rankings/teams', { season });
+        return data.response;
     };
     
     /**
@@ -79,40 +97,105 @@ const F1API = (() => {
      */
     const getDriverInfo = async (driverId) => {
         const data = await fetchData(`/drivers/${driverId}`);
-        return data.MRData.DriverTable.Drivers[0];
+        return data.response;
     };
     
     /**
      * Obter informações completas de uma equipe
-     * @param {string} constructorId - ID da equipe
+     * @param {string} teamId - ID da equipe
      * @returns {Promise} - Promise com as informações da equipe
      */
-    const getConstructorInfo = async (constructorId) => {
-        const data = await fetchData(`/constructors/${constructorId}`);
-        return data.MRData.ConstructorTable.Constructors[0];
-    };
-    
-    /**
-     * Obter todos os pilotos de uma equipe na temporada atual
-     * @param {string} constructorId - ID da equipe
-     * @returns {Promise} - Promise com a lista de pilotos da equipe
-     */
-    const getConstructorDrivers = async (constructorId) => {
-        const data = await fetchData(`/current/constructors/${constructorId}/drivers`);
-        return data.MRData.DriverTable.Drivers;
+    const getConstructorInfo = async (teamId) => {
+        const data = await fetchData(`/teams/${teamId}`);
+        return data.response;
     };
     
     /**
      * Obter resultados de uma corrida específica
-     * @param {number} round - Número da etapa
+     * @param {number} raceId - ID da corrida
      * @returns {Promise} - Promise com os resultados da corrida
      */
-    const getRaceResults = async (round) => {
-        const data = await fetchData(`/current/${round}/results`);
-        return data.MRData.RaceTable.Races[0];
+    const getRaceResults = async (raceId) => {
+        const data = await fetchData('/rankings/races', { race: raceId });
+        return data.response;
+    };
+
+    /**
+     * Obter temporadas disponíveis
+     * @returns {Promise} - Promise com a lista de temporadas
+     */
+    const getSeasons = async () => {
+        const data = await fetchData('/seasons');
+        return data.response;
+    };
+
+    /**
+     * Obter grid de largada de uma corrida
+     * @param {number} raceId - ID da corrida
+     * @returns {Promise} - Promise com o grid de largada
+     */
+    const getStartingGrid = async (raceId) => {
+        const data = await fetchData('/rankings/startinggrid', { race: raceId });
+        return data.response;
+    };
+
+    /**
+     * Obter volta a volta de uma corrida
+     * @param {number} raceId - ID da corrida
+     * @returns {Promise} - Promise com os dados de volta a volta
+     */
+    const getLapTimes = async (raceId) => {
+        const data = await fetchData('/rankings/fastest', { race: raceId });
+        return data.response;
+    };
+
+    /**
+     * Pesquisar pilotos por nome
+     * @param {string} query - Texto da busca
+     * @returns {Promise} - Promise com os resultados da busca
+     */
+    const searchDrivers = async (query) => {
+        const data = await fetchData('/drivers');
+        const drivers = data.response;
+        return drivers.filter(driver => 
+            driver.name.toLowerCase().includes(query.toLowerCase()) ||
+            driver.nationality.toLowerCase().includes(query.toLowerCase())
+        );
+    };
+
+    /**
+     * Pesquisar equipes por nome
+     * @param {string} query - Texto da busca
+     * @returns {Promise} - Promise com os resultados da busca
+     */
+    const searchConstructors = async (query) => {
+        const data = await fetchData('/teams');
+        const teams = data.response;
+        return teams.filter(team => 
+            team.name.toLowerCase().includes(query.toLowerCase()) ||
+            team.nationality.toLowerCase().includes(query.toLowerCase())
+        );
+    };
+
+    /**
+     * Obter dados de uma temporada específica
+     * @param {number} year - Ano da temporada
+     * @returns {Promise} - Promise com os dados da temporada
+     */
+    const getSeasonData = async (year) => {
+        const [races, drivers, teams] = await Promise.all([
+            fetchData('/races', { season: year }),
+            fetchData('/rankings/drivers', { season: year }),
+            fetchData('/rankings/teams', { season: year })
+        ]);
+        
+        return {
+            races: races.response,
+            drivers: drivers.response,
+            constructors: teams.response
+        };
     };
     
-    // Retornando os métodos públicos
     return {
         getCurrentDrivers,
         getCurrentConstructors,
@@ -121,7 +204,15 @@ const F1API = (() => {
         getCurrentConstructorStandings,
         getDriverInfo,
         getConstructorInfo,
-        getConstructorDrivers,
-        getRaceResults
+        getRaceResults,
+        getSeasons,
+        getLapTimes,
+        getStartingGrid,
+        searchDrivers,
+        searchConstructors,
+        getSeasonData,
+        getCurrentYear: () => new Date().getFullYear()
     };
-})(); 
+})();
+
+export default F1API; 

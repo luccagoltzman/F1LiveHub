@@ -1,3 +1,5 @@
+import F1API from './api.js';
+
 /**
  * Aplicação principal do F1LiveHub
  * Gerencia a aplicação, manipula o DOM e interage com a API
@@ -14,6 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickAccessLinks = document.querySelectorAll('.quick-access .btn');
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
+
+    // Elementos do DOM para as novas funcionalidades
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const quickSearchInput = document.getElementById('quick-search');
+    const searchBtn = document.getElementById('search-btn');
+    const searchResults = document.getElementById('search-results');
+    const seasonSelect = document.getElementById('season-select');
+    const historyContent = document.getElementById('history-content');
+    const notificationsList = document.getElementById('notifications-list');
+    const notificationBadge = document.querySelector('.notification-badge');
+
+    // Adicionar seletor de temporada atual
+    const currentSeasonSelect = document.createElement('select');
+    currentSeasonSelect.id = 'current-season-select';
+    currentSeasonSelect.className = 'season-selector';
+    currentSeasonSelect.innerHTML = `
+        <option value="2024">Temporada 2024</option>
+        <option value="2025">Temporada 2025</option>
+    `;
+    currentSeasonSelect.value = '2025'; // Define 2025 como padrão
+    
+    // Adicionar o seletor ao header
+    document.querySelector('header .container').appendChild(currentSeasonSelect);
 
     /**
      * Exibe uma mensagem de erro 
@@ -134,13 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Carregar os pilotos da temporada atual
+     * Carregar os pilotos da temporada selecionada
      */
     const loadDrivers = async () => {
         try {
+            const selectedSeason = currentSeasonSelect.value;
             driverGrid.innerHTML = '<div class="loading">Carregando pilotos...</div>';
             
-            const drivers = await F1API.getCurrentDrivers();
+            const drivers = await F1API.getCurrentDrivers(selectedSeason);
             
             if (drivers.length === 0) {
                 driverGrid.innerHTML = '<p>Nenhum piloto encontrado.</p>';
@@ -149,19 +175,23 @@ document.addEventListener('DOMContentLoaded', () => {
             
             driverGrid.innerHTML = '';
             
-            drivers.forEach(driver => {
+            drivers.forEach(standing => {
+                const driver = standing.driver;
+                const team = standing.team;
                 const driverCard = document.createElement('div');
                 driverCard.className = 'driver-card';
                 driverCard.innerHTML = `
                     <div class="driver-header">
-                        <h3>${driver.givenName} ${driver.familyName}</h3>
-                        <div class="driver-number">${driver.permanentNumber || '?'}</div>
+                        <h3>${driver.name}</h3>
+                        <div class="driver-number">${driver.number}</div>
                     </div>
                     <div class="driver-info">
-                        <p><strong>Data de Nascimento:</strong> ${formatDate(driver.dateOfBirth)}</p>
-                        <p><strong>Nacionalidade:</strong> ${formatNationality(driver.nationality)}</p>
-                        <p><strong>Código:</strong> ${driver.code || 'N/A'}</p>
-                        <p><a href="${driver.url}" target="_blank" class="btn">Mais Informações</a></p>
+                        <img src="${driver.image}" alt="${driver.name}" style="width: 100px; height: auto; margin-bottom: 10px;">
+                        <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                        <p><strong>Equipe:</strong> ${team.name}</p>
+                        <p><strong>Pontos:</strong> ${standing.points}</p>
+                        <p><strong>Vitórias:</strong> ${standing.wins}</p>
+                        <p><strong>Sigla:</strong> ${driver.abbr}</p>
                     </div>
                 `;
                 driverGrid.appendChild(driverCard);
@@ -172,13 +202,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Carregar as equipes da temporada atual
+     * Carregar as equipes da temporada selecionada
      */
     const loadTeams = async () => {
         try {
+            const selectedSeason = currentSeasonSelect.value;
             teamsGrid.innerHTML = '<div class="loading">Carregando equipes...</div>';
             
-            const constructors = await F1API.getCurrentConstructors();
+            const constructors = await F1API.getCurrentConstructors(selectedSeason);
             
             if (constructors.length === 0) {
                 teamsGrid.innerHTML = '<p>Nenhuma equipe encontrada.</p>';
@@ -187,16 +218,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             teamsGrid.innerHTML = '';
             
-            constructors.forEach(constructor => {
+            constructors.forEach(standing => {
+                const team = standing.team;
                 const teamCard = document.createElement('div');
                 teamCard.className = 'team-card';
                 teamCard.innerHTML = `
                     <div class="team-header">
-                        <h3>${constructor.name}</h3>
+                        <h3>${team.name}</h3>
                     </div>
                     <div class="team-info">
-                        <p><strong>Nacionalidade:</strong> ${formatNationality(constructor.nationality)}</p>
-                        <p><a href="${constructor.url}" target="_blank" class="btn">Mais Informações</a></p>
+                        <img src="${team.logo}" alt="${team.name}" style="width: 150px; height: auto; margin-bottom: 10px;">
+                        <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                        <p><strong>Pontos:</strong> ${standing.points}</p>
+                        <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
                     </div>
                 `;
                 teamsGrid.appendChild(teamCard);
@@ -207,13 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Carregar o calendário de corridas
+     * Carregar o calendário de corridas da temporada selecionada
      */
     const loadRaces = async () => {
         try {
+            const selectedSeason = currentSeasonSelect.value;
             racesList.innerHTML = '<div class="loading">Carregando calendário de corridas...</div>';
             
-            const races = await F1API.getCurrentRaces();
+            const races = await F1API.getCurrentRaces(selectedSeason);
             
             if (races.length === 0) {
                 racesList.innerHTML = '<p>Nenhuma corrida encontrada.</p>';
@@ -223,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             racesList.innerHTML = '';
             
             races.forEach(race => {
-                const raceDate = new Date(`${race.date}T${race.time || '00:00:00Z'}`);
+                const raceDate = new Date(race.date);
                 const now = new Date();
                 const isPast = raceDate < now;
                 
@@ -231,21 +266,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 raceCard.className = `race-card ${isPast ? 'past' : 'upcoming'}`;
                 
                 raceCard.innerHTML = `
-                    <div class="race-round">${race.round}</div>
+                    <div class="race-round">${race.round || race.id}</div>
                     <div class="race-info">
-                        <h3>${race.raceName}</h3>
-                        <p>${race.Circuit.circuitName}, ${race.Circuit.Location.locality}, ${race.Circuit.Location.country}</p>
+                        <h3>${race.competition.name}</h3>
+                        <p>${race.circuit.name}, ${race.competition.location.city}, ${race.competition.location.country}</p>
                     </div>
                     <div class="race-date">
-                        <div class="date">${formatDate(race.date)}</div>
-                        <div class="time">${race.time ? new Date(`2023-01-01T${race.time}`).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) : 'Horário não definido'}</div>
+                        <div class="date">${new Date(race.date).toLocaleDateString('pt-BR')}</div>
+                        <div class="time">${race.time || 'Horário não definido'}</div>
                         ${isPast ? '<div class="status past">Concluída</div>' : '<div class="status upcoming">Em breve</div>'}
                     </div>
                 `;
                 
                 if (isPast) {
                     raceCard.innerHTML += `
-                        <button class="btn results-btn" data-round="${race.round}">Ver resultados</button>
+                        <button class="btn results-btn" data-race-id="${race.id}">Ver resultados</button>
                     `;
                 }
                 
@@ -255,13 +290,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Adicionar evento para botões de resultados
             document.querySelectorAll('.results-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
-                    const round = e.currentTarget.dataset.round;
+                    const raceId = e.currentTarget.dataset.raceId;
                     
                     try {
                         e.currentTarget.textContent = 'Carregando...';
                         e.currentTarget.disabled = true;
                         
-                        const results = await F1API.getRaceResults(round);
+                        const results = await F1API.getRaceResults(raceId);
                         
                         // Criar modal para exibir os resultados
                         const modal = document.createElement('div');
@@ -269,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         modal.innerHTML = `
                             <div class="modal-content">
                                 <span class="close">&times;</span>
-                                <h2>${results.raceName} - Resultados</h2>
+                                <h2>Resultados da Corrida</h2>
                                 <table class="results-table">
                                     <thead>
                                         <tr>
@@ -277,17 +312,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <th>Piloto</th>
                                             <th>Equipe</th>
                                             <th>Pontos</th>
-                                            <th>Tempo</th>
+                                            <th>Tempo/Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${results.Results.map(result => `
+                                        ${results.map(result => `
                                             <tr>
                                                 <td>${result.position}</td>
-                                                <td>${result.Driver.givenName} ${result.Driver.familyName}</td>
-                                                <td>${result.Constructor.name}</td>
+                                                <td>${result.driver.name}</td>
+                                                <td>${result.team.name}</td>
                                                 <td>${result.points}</td>
-                                                <td>${result.Time ? result.Time.time : (result.status || 'N/A')}</td>
+                                                <td>${result.time || result.status || 'N/A'}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -326,25 +361,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Carregar a classificação de pilotos e construtores
+     * Carregar a classificação de pilotos e construtores da temporada selecionada
      */
     const loadStandings = async () => {
         try {
+            const selectedSeason = currentSeasonSelect.value;
             // Carregar classificação de pilotos
             document.querySelector('#driver-standings .loading').style.display = 'block';
             driversTable.innerHTML = '';
             
-            const driverStandings = await F1API.getCurrentDriverStandings();
+            const driverStandings = await F1API.getCurrentDriverStandings(selectedSeason);
             
             if (driverStandings.length > 0) {
                 driverStandings.forEach(standing => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${standing.position}</td>
-                        <td>${standing.Driver.givenName} ${standing.Driver.familyName}</td>
-                        <td>${formatNationality(standing.Driver.nationality)}</td>
-                        <td>${standing.Constructors.length > 0 ? standing.Constructors[0].name : 'N/A'}</td>
-                        <td class="points">${standing.points}</td>
+                        <td>${standing.driver.name}</td>
+                        <td>${standing.team.name}</td>
+                        <td>${standing.points}</td>
+                        <td>${standing.wins}</td>
                     `;
                     
                     driversTable.appendChild(row);
@@ -359,16 +395,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#constructor-standings .loading').style.display = 'block';
             constructorsTable.innerHTML = '';
             
-            const constructorStandings = await F1API.getCurrentConstructorStandings();
+            const constructorStandings = await F1API.getCurrentConstructorStandings(selectedSeason);
             
             if (constructorStandings.length > 0) {
                 constructorStandings.forEach(standing => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${standing.position}</td>
-                        <td>${standing.Constructor.name}</td>
-                        <td>${formatNationality(standing.Constructor.nationality)}</td>
-                        <td class="points">${standing.points}</td>
+                        <td>${standing.team.name}</td>
+                        <td>${standing.points}</td>
+                        <td>${standing.wins || 0}</td>
                     `;
                     
                     constructorsTable.appendChild(row);
@@ -400,4 +436,282 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Carregar a página inicial com os dados de pilotos
     loadDrivers();
+
+    /**
+     * Alternar entre tema claro e escuro
+     */
+    const toggleTheme = () => {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Atualizar ícone do botão
+        themeToggleBtn.innerHTML = `<i class="fas fa-${newTheme === 'light' ? 'moon' : 'sun'}"></i>`;
+    };
+
+    /**
+     * Realizar busca rápida
+     * @param {string} query - Texto da busca
+     */
+    const performQuickSearch = async (query) => {
+        if (!query.trim()) {
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        try {
+            searchResults.innerHTML = '<div class="loading">Buscando...</div>';
+            
+            const [drivers, constructors] = await Promise.all([
+                F1API.searchDrivers(query),
+                F1API.searchConstructors(query)
+            ]);
+
+            if (drivers.length === 0 && constructors.length === 0) {
+                searchResults.innerHTML = '<p class="empty-notification">Nenhum resultado encontrado.</p>';
+                return;
+            }
+
+            searchResults.innerHTML = '';
+            
+            // Exibir resultados de pilotos
+            drivers.forEach(driver => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerHTML = `
+                    <div class="search-result-info">
+                        <h4>${driver.givenName} ${driver.familyName}</h4>
+                        <p>Piloto - ${formatNationality(driver.nationality)}</p>
+                    </div>
+                `;
+                searchResults.appendChild(resultItem);
+            });
+
+            // Exibir resultados de equipes
+            constructors.forEach(constructor => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerHTML = `
+                    <div class="search-result-info">
+                        <h4>${constructor.name}</h4>
+                        <p>Equipe - ${formatNationality(constructor.nationality)}</p>
+                    </div>
+                `;
+                searchResults.appendChild(resultItem);
+            });
+        } catch (error) {
+            searchResults.innerHTML = '<p class="error-message">Erro ao realizar a busca.</p>';
+        }
+    };
+
+    /**
+     * Carregar temporadas disponíveis
+     */
+    const loadSeasons = async () => {
+        try {
+            const seasons = await F1API.getSeasons();
+            seasonSelect.innerHTML = '<option value="">Selecione uma temporada...</option>';
+            
+            seasons.reverse().forEach(season => {
+                const option = document.createElement('option');
+                option.value = season.season;
+                option.textContent = `Temporada ${season.season}`;
+                seasonSelect.appendChild(option);
+            });
+        } catch (error) {
+            seasonSelect.innerHTML = '<option value="">Erro ao carregar temporadas</option>';
+        }
+    };
+
+    /**
+     * Carregar dados de uma temporada específica
+     * @param {string} year - Ano da temporada
+     */
+    const loadSeasonData = async (year) => {
+        try {
+            historyContent.innerHTML = '<div class="loading">Carregando dados da temporada...</div>';
+            
+            const seasonData = await F1API.getSeasonData(year);
+            
+            historyContent.innerHTML = `
+                <div class="season-summary">
+                    <h3>Temporada ${year}</h3>
+                    <div class="season-stats">
+                        <p><strong>Total de Corridas:</strong> ${seasonData.races.length}</p>
+                        <p><strong>Pilotos Participantes:</strong> ${seasonData.drivers.length}</p>
+                        <p><strong>Equipes Participantes:</strong> ${seasonData.constructors.length}</p>
+                    </div>
+                    
+                    <div class="season-standings">
+                        <h4>Classificação Final - Pilotos</h4>
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Piloto</th>
+                                    <th>Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${seasonData.driverStandings.slice(0, 10).map(standing => `
+                                    <tr>
+                                        <td>${standing.position}</td>
+                                        <td>${standing.Driver.givenName} ${standing.Driver.familyName}</td>
+                                        <td>${standing.points}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <h4>Classificação Final - Construtores</h4>
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Equipe</th>
+                                    <th>Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${seasonData.constructorStandings.map(standing => `
+                                    <tr>
+                                        <td>${standing.position}</td>
+                                        <td>${standing.Constructor.name}</td>
+                                        <td>${standing.points}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            historyContent.innerHTML = '<p class="error-message">Erro ao carregar dados da temporada.</p>';
+        }
+    };
+
+    /**
+     * Sistema de Notificações
+     */
+    const notifications = {
+        items: [],
+        
+        add(title, message, type = 'info') {
+            const notification = {
+                id: Date.now(),
+                title,
+                message,
+                type,
+                time: new Date(),
+                read: false
+            };
+            
+            this.items.unshift(notification);
+            this.updateUI();
+            this.updateBadge();
+        },
+        
+        markAsRead(id) {
+            const notification = this.items.find(item => item.id === id);
+            if (notification) {
+                notification.read = true;
+                this.updateUI();
+                this.updateBadge();
+            }
+        },
+        
+        updateUI() {
+            if (this.items.length === 0) {
+                notificationsList.innerHTML = '<p class="empty-notification">Sem notificações no momento.</p>';
+                return;
+            }
+            
+            notificationsList.innerHTML = this.items.map(notification => `
+                <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+                    <i class="notification-icon fas fa-${notification.type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i>
+                    <div class="notification-content">
+                        <h4>${notification.title}</h4>
+                        <p>${notification.message}</p>
+                        <div class="notification-time">${notification.time.toLocaleTimeString('pt-BR')}</div>
+                    </div>
+                </div>
+            `).join('');
+        },
+        
+        updateBadge() {
+            const unreadCount = this.items.filter(item => !item.read).length;
+            notificationBadge.textContent = unreadCount;
+            notificationBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+        }
+    };
+
+    // Event Listeners para as novas funcionalidades
+    themeToggleBtn.addEventListener('click', toggleTheme);
+    
+    quickSearchInput.addEventListener('input', (e) => {
+        performQuickSearch(e.target.value);
+    });
+    
+    searchBtn.addEventListener('click', () => {
+        performQuickSearch(quickSearchInput.value);
+    });
+    
+    seasonSelect.addEventListener('change', (e) => {
+        if (e.target.value) {
+            loadSeasonData(e.target.value);
+        }
+    });
+    
+    notificationsList.addEventListener('click', (e) => {
+        const notificationItem = e.target.closest('.notification-item');
+        if (notificationItem) {
+            const id = parseInt(notificationItem.dataset.id);
+            notifications.markAsRead(id);
+        }
+    });
+
+    // Inicialização das novas funcionalidades
+    document.addEventListener('DOMContentLoaded', () => {
+        // Carregar tema salvo
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = `<i class="fas fa-${savedTheme === 'light' ? 'moon' : 'sun'}"></i>`;
+        
+        // Carregar temporadas disponíveis
+        loadSeasons();
+        
+        // Exemplo de notificação inicial
+        notifications.add(
+            'Bem-vindo ao F1LiveHub',
+            'Acompanhe todas as informações da Fórmula 1 em tempo real!',
+            'info'
+        );
+    });
+
+    // Adicionar evento para atualizar dados quando a temporada for alterada
+    currentSeasonSelect.addEventListener('change', () => {
+        const activePage = document.querySelector('.page.active');
+        if (activePage) {
+            const pageId = activePage.id;
+            if (pageId === 'drivers') {
+                loadDrivers();
+            } else if (pageId === 'teams') {
+                loadTeams();
+            } else if (pageId === 'races') {
+                loadRaces();
+            } else if (pageId === 'standings') {
+                loadStandings();
+            }
+        }
+        
+        // Adicionar notificação de mudança de temporada
+        notifications.add(
+            'Temporada Alterada',
+            `Dados atualizados para a temporada ${currentSeasonSelect.value}`,
+            'info'
+        );
+    });
 }); 

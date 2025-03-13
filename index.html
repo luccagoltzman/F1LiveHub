@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +20,13 @@
                     <li><a href="#" data-page="teams">Equipes</a></li>
                     <li><a href="#" data-page="races">Corridas</a></li>
                     <li><a href="#" data-page="standings">Classificação</a></li>
+                    <li><a href="#" data-page="history">Histórico</a></li>
                 </ul>
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
             </nav>
         </div>
     </header>
@@ -58,16 +64,44 @@
                         <a href="#" class="btn" data-page="standings">Ver classificação</a>
                     </div>
                 </div>
+                
+                <div class="search-container">
+                    <h3>Busca Rápida</h3>
+                    <div class="search-box">
+                        <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe...">
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div id="search-results" class="search-results"></div>
+                </div>
+                
+                <div class="notification-center">
+                    <h3>Notificações <span class="notification-badge">0</span></h3>
+                    <div id="notifications-list" class="notifications-list">
+                        <p class="empty-notification">Sem notificações no momento.</p>
+                    </div>
+                </div>
             </section>
 
             <section id="drivers" class="page">
-                <h2>Pilotos da Temporada</h2>
+                <div class="page-header">
+                    <h2>Pilotos da Temporada</h2>
+                    <div class="search-box">
+                        <input type="text" id="driver-search" placeholder="Buscar piloto...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
                 <div class="loading">Carregando pilotos...</div>
                 <div class="drivers-grid"></div>
             </section>
 
             <section id="teams" class="page">
-                <h2>Equipes da Temporada</h2>
+                <div class="page-header">
+                    <h2>Equipes da Temporada</h2>
+                    <div class="search-box">
+                        <input type="text" id="team-search" placeholder="Buscar equipe...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
                 <div class="loading">Carregando equipes...</div>
                 <div class="teams-grid"></div>
             </section>
@@ -116,17 +150,58 @@
                     </div>
                 </div>
             </section>
+            
+            <section id="history" class="page">
+                <div class="page-header">
+                    <h2>Histórico de Temporadas</h2>
+                    <div class="season-selector">
+                        <select id="season-select">
+                            <option value="">Selecione uma temporada...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="loading" id="history-loading">Selecione uma temporada para visualizar os dados...</div>
+                <div class="history-content" id="history-content">
+                    <!-- Conteúdo será carregado dinamicamente -->
+                </div>
+            </section>
         </div>
     </main>
+    
+    <!-- Template para modal de detalhes volta a volta -->
+    <template id="lap-by-lap-template">
+        <div class="lap-by-lap-container">
+            <h3>Detalhes Volta a Volta</h3>
+            <div class="lap-chart-container">
+                <canvas id="lap-chart"></canvas>
+            </div>
+            <div class="laps-table-container">
+                <table class="laps-table">
+                    <thead>
+                        <tr>
+                            <th>Volta</th>
+                            <th>Piloto</th>
+                            <th>Tempo</th>
+                            <th>Pos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dados de voltas aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
 
     <footer>
         <div class="container">
             <p>&copy; 2024 F1LiveHub. Todos os direitos reservados.</p>
-            <p>Dados fornecidos pela <a href="http://ergast.com/mrd/" target="_blank">Ergast API</a></p>
+            <p>Dados fornecidos pela API Formula 1</p>
         </div>
     </footer>
 
-    <script src="js/api.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Scripts -->
+    <script type="module" src="js/api.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html> 
