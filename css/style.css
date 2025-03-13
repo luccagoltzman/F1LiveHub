@@ -523,12 +523,15 @@ main {
 .standings-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin: 1rem 0;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .standings-table th,
 .standings-table td {
-    padding: 12px 15px;
+    padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
@@ -536,15 +539,11 @@ main {
 .standings-table th {
     background-color: var(--secondary-color);
     color: white;
+    font-weight: 600;
 }
 
-.standings-table tbody tr {
-    background-color: var(--card-bg);
-    transition: var(--transition);
-}
-
-.standings-table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+.standings-table tr:last-child td {
+    border-bottom: none;
 }
 
 /* Página de Histórico */
@@ -800,15 +799,46 @@ footer a:hover {
     }
 
     .standings-table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        display: table;
+        width: 100%;
     }
-
-    .standings-table th,
-    .standings-table td {
-        white-space: nowrap;
-        padding: 0.75rem;
+    
+    .hide-on-mobile {
+        display: none;
+    }
+    
+    .standings-table th.col-position,
+    .standings-table td.col-position {
+        width: 50px;
+        text-align: center;
+    }
+    
+    .standings-table th.col-driver,
+    .standings-table td.col-driver,
+    .standings-table th.col-team,
+    .standings-table td.col-team {
+        width: auto;
+    }
+    
+    .standings-table th.col-points,
+    .standings-table td.col-points {
+        width: 80px;
+        text-align: right;
+    }
+    
+    /* Adicionar um pequeno indicador para a posição */
+    .standings-table td.col-position {
+        position: relative;
+    }
+    
+    .standings-table td.col-position:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: var(--primary-color);
     }
 
     .drivers-grid,
@@ -950,8 +980,17 @@ footer a:hover {
 
     .standings-table th,
     .standings-table td {
-        padding: 0.5rem;
-        font-size: 0.9rem;
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .standings-table th.col-position,
+    .standings-table td.col-position {
+        width: 40px;
+    }
+    
+    .standings-table th.col-points,
+    .standings-table td.col-points {
+        width: 60px;
     }
 }
 
@@ -1012,33 +1051,6 @@ footer a:hover {
 #current-season-select:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(225, 6, 0, 0.3);
-}
-
-/* Tabelas responsivas */
-.standings-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-    background-color: var(--card-background);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.standings-table th,
-.standings-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.standings-table th {
-    background-color: var(--secondary-color);
-    color: white;
-    font-weight: 600;
-}
-
-.standings-table tr:last-child td {
-    border-bottom: none;
 }
 
 /* Cards responsivos */

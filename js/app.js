@@ -425,11 +425,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 driverStandings.forEach(standing => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${standing.position}</td>
-                        <td>${standing.driver.name}</td>
-                        <td>${standing.team.name}</td>
-                        <td>${standing.points}</td>
-                        <td>${standing.wins}</td>
+                        <td class="col-position">${standing.position}</td>
+                        <td class="col-driver">${standing.driver.name}</td>
+                        <td class="col-team hide-on-mobile">${standing.team.name}</td>
+                        <td class="col-points">${standing.points}</td>
+                        <td class="col-wins hide-on-mobile">${standing.wins}</td>
                     `;
                     
                     driversTable.appendChild(row);
@@ -450,10 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 constructorStandings.forEach(standing => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${standing.position}</td>
-                        <td>${standing.team.name}</td>
-                        <td>${standing.points}</td>
-                        <td>${standing.wins || 0}</td>
+                        <td class="col-position">${standing.position}</td>
+                        <td class="col-team">${standing.team.name}</td>
+                        <td class="col-points">${standing.points}</td>
+                        <td class="col-wins hide-on-mobile">${standing.wins || 0}</td>
                     `;
                     
                     constructorsTable.appendChild(row);
@@ -599,17 +599,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <table class="standings-table">
                             <thead>
                                 <tr>
-                                    <th>Pos</th>
-                                    <th>Piloto</th>
-                                    <th>Pontos</th>
+                                    <th class="col-position">Pos</th>
+                                    <th class="col-driver">Piloto</th>
+                                    <th class="col-points">Pontos</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${seasonData.driverStandings.slice(0, 10).map(standing => `
                                     <tr>
-                                        <td>${standing.position}</td>
-                                        <td>${standing.Driver.givenName} ${standing.Driver.familyName}</td>
-                                        <td>${standing.points}</td>
+                                        <td class="col-position">${standing.position}</td>
+                                        <td class="col-driver">${standing.Driver.givenName} ${standing.Driver.familyName}</td>
+                                        <td class="col-points">${standing.points}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -619,17 +619,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <table class="standings-table">
                             <thead>
                                 <tr>
-                                    <th>Pos</th>
-                                    <th>Equipe</th>
-                                    <th>Pontos</th>
+                                    <th class="col-position">Pos</th>
+                                    <th class="col-team">Equipe</th>
+                                    <th class="col-points">Pontos</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${seasonData.constructorStandings.map(standing => `
                                     <tr>
-                                        <td>${standing.position}</td>
-                                        <td>${standing.Constructor.name}</td>
-                                        <td>${standing.points}</td>
+                                        <td class="col-position">${standing.position}</td>
+                                        <td class="col-team">${standing.Constructor.name}</td>
+                                        <td class="col-points">${standing.points}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
