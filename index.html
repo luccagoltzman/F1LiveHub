@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1LiveHub - Seu Hub de Fórmula 1</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>F1LiveHub</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active" data-page="home">Início</a></li>
+                    <li><a href="#" data-page="drivers">Pilotos</a></li>
+                    <li><a href="#" data-page="teams">Equipes</a></li>
+                    <li><a href="#" data-page="races">Corridas</a></li>
+                    <li><a href="#" data-page="standings">Classificação</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section id="home" class="page active">
+                <div class="hero">
+                    <h2>Bem-vindo ao F1LiveHub</h2>
+                    <p>Seu hub completo de informações sobre Fórmula 1</p>
+                </div>
+                <div class="quick-access">
+                    <div class="card">
+                        <i class="fas fa-user-astronaut"></i>
+                        <h3>Pilotos</h3>
+                        <p>Conheça todos os pilotos da atual temporada</p>
+                        <a href="#" class="btn" data-page="drivers">Ver pilotos</a>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-car-side"></i>
+                        <h3>Equipes</h3>
+                        <p>Informações sobre todas as equipes da F1</p>
+                        <a href="#" class="btn" data-page="teams">Ver equipes</a>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h3>Corridas</h3>
+                        <p>Calendário completo da temporada</p>
+                        <a href="#" class="btn" data-page="races">Ver calendário</a>
+                    </div>
+                    <div class="card">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Classificação</h3>
+                        <p>Classificação de pilotos e construtores</p>
+                        <a href="#" class="btn" data-page="standings">Ver classificação</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="drivers" class="page">
+                <h2>Pilotos da Temporada</h2>
+                <div class="loading">Carregando pilotos...</div>
+                <div class="drivers-grid"></div>
+            </section>
+
+            <section id="teams" class="page">
+                <h2>Equipes da Temporada</h2>
+                <div class="loading">Carregando equipes...</div>
+                <div class="teams-grid"></div>
+            </section>
+
+            <section id="races" class="page">
+                <h2>Calendário de Corridas</h2>
+                <div class="loading">Carregando calendário...</div>
+                <div class="races-list"></div>
+            </section>
+
+            <section id="standings" class="page">
+                <h2>Classificação</h2>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="driver-standings">Pilotos</button>
+                    <button class="tab-btn" data-tab="constructor-standings">Construtores</button>
+                </div>
+                <div class="tab-content">
+                    <div id="driver-standings" class="tab-pane active">
+                        <div class="loading">Carregando classificação de pilotos...</div>
+                        <table class="standings-table drivers-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Piloto</th>
+                                    <th>Nacionalidade</th>
+                                    <th>Equipe</th>
+                                    <th>Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div id="constructor-standings" class="tab-pane">
+                        <div class="loading">Carregando classificação de construtores...</div>
+                        <table class="standings-table constructors-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Equipe</th>
+                                    <th>Nacionalidade</th>
+                                    <th>Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 F1LiveHub. Todos os direitos reservados.</p>
+            <p>Dados fornecidos pela <a href="http://ergast.com/mrd/" target="_blank">Ergast API</a></p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 
