@@ -28,17 +28,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationBadge = document.querySelector('.notification-badge');
 
     // Adicionar seletor de temporada atual
+    const seasonControls = document.createElement('div');
+    seasonControls.className = 'season-controls';
+    
     const currentSeasonSelect = document.createElement('select');
     currentSeasonSelect.id = 'current-season-select';
-    currentSeasonSelect.className = 'season-selector';
     currentSeasonSelect.innerHTML = `
         <option value="2024">Temporada 2024</option>
         <option value="2025">Temporada 2025</option>
     `;
     currentSeasonSelect.value = '2025'; // Define 2025 como padrão
     
-    // Adicionar o seletor ao header
-    document.querySelector('header .container').appendChild(currentSeasonSelect);
+    seasonControls.appendChild(currentSeasonSelect);
+    
+    // Adicionar o seletor ao header, após a navegação
+    const nav = document.querySelector('header nav');
+    nav.appendChild(seasonControls);
+
+    // Menu Mobile
+    const menuToggle = document.getElementById('menu-toggle');
+    const overlay = document.getElementById('overlay');
+
+    const toggleMenu = (e) => {
+        if (e && e.target === overlay) {
+            // Se o clique foi no overlay, fecha o menu
+            nav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        } else {
+            // Se o clique foi no botão do menu, alterna o estado
+            nav.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+        }
+    };
+
+    menuToggle.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    // Fechar menu ao clicar em um link
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.stopPropagation(); // Impede que o clique se propague para o overlay
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    nav.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }, 150); // Pequeno delay para melhor experiência do usuário
+            }
+        });
+    });
+
+    // Fechar menu ao redimensionar a tela para desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && nav.classList.contains('active')) {
+            nav.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
 
     /**
      * Exibe uma mensagem de erro 
