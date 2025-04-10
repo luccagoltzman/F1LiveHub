@@ -13,6 +13,19 @@
     <meta name="description" content="F1LiveHub - Seu hub completo para acompanhar estatísticas, resultados e informações sobre Fórmula 1 em tempo real.">
 </head>
 <body>
+    <!-- Tela de Loading Inicial -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-logo">F1LiveHub</div>
+            <div class="loading-message">Você cruzou a linha de chegada para o hub certo</div>
+            <div class="checkered-flag">
+                <div class="flag-pattern"></div>
+            </div>
+            <div id="fireworks-container" class="fireworks-container"></div>
+            <button id="skip-intro" class="skip-intro">Pular Introdução</button>
+        </div>
+    </div>
+
     <header>
         <button class="menu-toggle" id="menu-toggle" aria-label="Menu de navegação">
             <i class="fas fa-bars"></i>

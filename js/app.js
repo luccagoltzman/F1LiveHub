@@ -1119,4 +1119,203 @@ document.addEventListener('DOMContentLoaded', () => {
             'info'
         );
     });
+
+    // Tela de Loading Inicial
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const skipIntroButton = document.getElementById('skip-intro');
+    const fireworksContainer = document.getElementById('fireworks-container');
+    
+    // Criar fogos de artifício
+    function createFireworks() {
+        // Cores intensas da F1
+        const colors = ['#e10600', '#ffffff', '#1E5BC6', '#ffff00', '#ff9800', '#00ff00'];
+        
+        // Criar mais explosões e em diferentes momentos
+        for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+                // Distribuir os fogos por toda a tela
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight * 0.8; // Deixar um pouco de espaço na parte inferior
+                
+                // Criar explosão com tamanho variado
+                const size = Math.random() > 0.7 ? 'grande' : 'normal';
+                createExplosion(x, y, colors, size);
+                
+                // Chance de criar uma explosão secundária
+                if (Math.random() > 0.5) {
+                    setTimeout(() => {
+                        const offsetX = x + (Math.random() * 200 - 100);
+                        const offsetY = y + (Math.random() * 200 - 100);
+                        createExplosion(offsetX, offsetY, colors, 'pequena');
+                    }, 200 + Math.random() * 300);
+                }
+            }, i * 250 + Math.random() * 500);
+        }
+    }
+    
+    // Criar uma explosão de fogos
+    function createExplosion(x, y, colors, size = 'normal') {
+        // Configurar tamanho da explosão
+        let particleCount, flashSize, particleSizeBase, particleSizeRandom, distance;
+        
+        if (size === 'grande') {
+            particleCount = 70 + Math.floor(Math.random() * 40);
+            flashSize = 30;
+            particleSizeBase = 5;
+            particleSizeRandom = 10;
+            distance = 150 + Math.random() * 150;
+        } else if (size === 'pequena') {
+            particleCount = 30 + Math.floor(Math.random() * 20);
+            flashSize = 10;
+            particleSizeBase = 3;
+            particleSizeRandom = 4;
+            distance = 70 + Math.random() * 80;
+        } else {
+            particleCount = 50 + Math.floor(Math.random() * 30);
+            flashSize = 20;
+            particleSizeBase = 4;
+            particleSizeRandom = 8;
+            distance = 100 + Math.random() * 120;
+        }
+        
+        // Escolher uma cor aleatória ou usar vermelho (cor F1) com mais frequência
+        const color = Math.random() > 0.4 ? colors[0] : colors[Math.floor(Math.random() * colors.length)];
+        
+        // Criar um flash inicial para simular a explosão
+        const flash = document.createElement('div');
+        flash.className = 'firework flash';
+        flash.style.left = x + 'px';
+        flash.style.top = y + 'px';
+        flash.style.width = flashSize + 'px';
+        flash.style.height = flashSize + 'px';
+        flash.style.borderRadius = '50%';
+        flash.style.backgroundColor = 'white';
+        flash.style.boxShadow = `0 0 40px 20px ${color}`;
+        flash.style.opacity = '0.9';
+        
+        fireworksContainer.appendChild(flash);
+        
+        flash.animate([
+            { transform: 'scale(1)', opacity: 0.9 },
+            { transform: 'scale(6)', opacity: 0 }
+        ], {
+            duration: 700,
+            easing: 'ease-out'
+        });
+        
+        setTimeout(() => {
+            flash.remove();
+        }, 700);
+        
+        // Criar partículas em todas as direções
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'firework';
+            
+            // Posição inicial no centro da explosão
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            
+            // Tamanho maior das partículas
+            const size = particleSizeBase + Math.random() * particleSizeRandom;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            
+            // Aumentar a opacidade e brilho das partículas
+            particle.style.backgroundColor = color;
+            particle.style.boxShadow = `0 0 20px 8px ${color}`;
+            particle.style.opacity = '0.95';
+            
+            // Trajetória aleatória com maior alcance e curvas naturais
+            const angle = Math.random() * Math.PI * 2;
+            const speedMultiplier = 0.8 + Math.random() * 0.4; // Variação na velocidade
+            
+            // Adicionar gravidade para curva mais natural
+            const gravity = 0.1 + Math.random() * 0.2;
+            
+            // Duração variada para partículas da mesma explosão
+            const duration = 1200 + Math.random() * 1200;
+            
+            // Criar animações mais complexas com keyframes
+            const keyframes = [
+                { transform: 'scale(1.5)', opacity: 1, offset: 0 },
+                { transform: 'scale(1)', opacity: 0.9, offset: 0.1 },
+                { transform: 'scale(0.8)', opacity: 0.8, offset: 0.6 },
+                { transform: 'scale(0)', opacity: 0, offset: 1 }
+            ];
+            
+            // Adicionar posições para criar trajetória em arco
+            const positionKeyframes = [];
+            for (let step = 0; step <= 10; step++) {
+                const progress = step / 10;
+                const horizontalDistance = (Math.cos(angle) * distance * speedMultiplier) * progress;
+                // Adicionar efeito de gravidade para criar um arco
+                const verticalDistance = (Math.sin(angle) * distance * speedMultiplier) * progress + (gravity * Math.pow(progress * 10, 2));
+                
+                positionKeyframes.push({
+                    left: (x + horizontalDistance) + 'px',
+                    top: (y + verticalDistance) + 'px',
+                    offset: progress
+                });
+            }
+            
+            // Combinar keyframes de escala/opacidade com posições
+            const combinedKeyframes = keyframes.map(frame => {
+                const matchingPositionFrame = positionKeyframes.find(pos => pos.offset === frame.offset);
+                return { ...frame, ...matchingPositionFrame };
+            });
+            
+            // Preencher com interpolações de posição
+            positionKeyframes.forEach(posFrame => {
+                if (!combinedKeyframes.some(ck => ck.offset === posFrame.offset)) {
+                    const matchingFrame = keyframes.reduce((prev, curr) => 
+                        Math.abs(curr.offset - posFrame.offset) < Math.abs(prev.offset - posFrame.offset) 
+                            ? curr : prev, keyframes[0]);
+                    
+                    combinedKeyframes.push({
+                        ...matchingFrame,
+                        ...posFrame,
+                        transform: matchingFrame.transform,
+                        opacity: matchingFrame.opacity
+                    });
+                }
+            });
+            
+            // Ordenar keyframes por offset
+            combinedKeyframes.sort((a, b) => a.offset - b.offset);
+            
+            // Animação mais dramática e natural
+            particle.animate(combinedKeyframes, {
+                duration: duration,
+                easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)',
+                fill: 'forwards'
+            });
+            
+            fireworksContainer.appendChild(particle);
+            
+            // Remover após animação
+            setTimeout(() => {
+                particle.remove();
+            }, duration);
+        }
+    }
+    
+    // Esconder a tela de loading
+    function hideLoadingScreen() {
+        loadingOverlay.classList.add('hidden');
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 800);
+    }
+    
+    // Iniciar sequência de animação
+    setTimeout(createFireworks, 500);
+    
+    // Esconder automaticamente após mais tempo para apreciar o efeito dos fogos
+    setTimeout(hideLoadingScreen, 7500);
+    
+    // Botão para pular introdução
+    if (skipIntroButton) {
+        skipIntroButton.addEventListener('click', hideLoadingScreen);
+    }
 }); 

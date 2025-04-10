@@ -2312,4 +2312,186 @@ footer p {
         background: var(--primary-color);
         border-radius: 10px;
     }
+}
+
+/* Tela de Loading Inicial */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #000 0%, #15151e 100%);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.8s ease-out, visibility 0.8s;
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+    padding: 2rem;
+}
+
+.loading-logo {
+    font-size: 5rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    position: relative;
+    text-shadow: 0 0 20px var(--primary-color);
+    animation: loadingPulse 2s infinite;
+}
+
+.loading-message {
+    font-size: 1.6rem;
+    color: #fff;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    font-weight: 500;
+    animation: loadingFadeIn 1s forwards 0.7s;
+}
+
+/* Bandeira Quadriculada */
+.checkered-flag {
+    width: 200px;
+    height: 100px;
+    margin: 0 auto 2rem;
+    position: relative;
+    overflow: hidden;
+    perspective: 300px;
+    animation: waveLoadingFlag 3s infinite ease-in-out;
+}
+
+.flag-pattern {
+    width: 100%;
+    height: 100%;
+    background-image: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%);
+    background-size: 25px 25px;
+    animation: loadingFlagWave 1s linear infinite;
+    transform-origin: center;
+}
+
+/* Fogos de Artifício Mais Intensos */
+.fireworks-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.firework {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9990;
+    will-change: transform, opacity, left, top;
+    filter: blur(0.5px);
+    transform-style: preserve-3d;
+}
+
+.firework.flash {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    z-index: 9995;
+    filter: blur(3px);
+    animation: flashPulse 0.7s ease-out forwards;
+    mix-blend-mode: screen;
+}
+
+/* Gradiente radial para partículas mais realistas */
+.firework::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 60%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.7;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Efeito de brilho adicional */
+.firework::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 40%);
+    border-radius: 50%;
+    opacity: 0.4;
+    pointer-events: none;
+    filter: blur(2px);
+    mix-blend-mode: screen;
+}
+
+@keyframes flashPulse {
+    0% { transform: scale(1); opacity: 1; }
+    40% { transform: scale(4); opacity: 0.8; }
+    100% { transform: scale(8); opacity: 0; }
+}
+
+@keyframes fireworkTrail {
+    0% { opacity: 0.9; width: 100%; height: 100%; }
+    100% { opacity: 0; width: 70%; height: 70%; }
+}
+
+/* Botão para pular introdução */
+.skip-intro {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: loadingFadeIn 0.5s forwards 2s;
+}
+
+.skip-intro:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animações para Loading */
+@keyframes loadingPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes loadingFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes waveLoadingFlag {
+    0%, 100% { transform: rotateX(10deg); }
+    50% { transform: rotateX(-5deg); }
+}
+
+@keyframes loadingFlagWave {
+    0% { background-position: 0 0; }
+    100% { background-position: 25px 25px; }
 } 
