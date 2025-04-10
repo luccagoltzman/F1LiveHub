@@ -665,7 +665,7 @@ main {
 }
 
 .race-card.upcoming {
-    border-left-color: var(--accent-color);
+    border-left-color: var(--primary-color);
 }
 
 .race-round {
@@ -735,21 +735,21 @@ main {
 }
 
 .status.upcoming {
-    background-color: #e6f7ff;
-    color: var(--accent-color);
+    background-color: #ffeeee;
+    color: var(--primary-color);
 }
 
 .race-card .results-btn {
     margin-top: 15px;
     font-size: 0.9rem;
-    background-color: var(--accent-color);
+    background-color: var(--primary-color);
     display: inline-block;
     width: 100%;
     text-align: center;
 }
 
 .race-card .results-btn:hover {
-    background-color: var(--accent-hover);
+    background-color: var(--primary-hover);
 }
 
 /* Classificação */
@@ -1263,19 +1263,34 @@ main {
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
     background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    padding: 30px;
     width: 90%;
     max-width: 800px;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     position: relative;
     color: var(--text-dark);
+    border-top: 5px solid var(--primary-color);
+}
+
+.modal-content h2 {
+    color: var(--text-dark);
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-content > p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
 }
 
 .close {
@@ -1285,34 +1300,165 @@ main {
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
-    color: #777;
+    color: var(--text-muted);
+    transition: var(--transition);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .close:hover {
-    color: #333;
+    color: var(--primary-color);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
+/* Melhorias para os cards de eventos */
+.events-list {
     margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
 }
 
-.results-table th,
-.results-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+.event-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 15px;
+    align-items: center;
+    border-left: 4px solid var(--primary-color);
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.results-table th {
-    background-color: var(--secondary-color);
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow);
+}
+
+.event-card.past {
+    border-left-color: #ccc;
+}
+
+.event-card.upcoming {
+    border-left-color: var(--primary-color);
+}
+
+.event-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-light);
     color: white;
+    border-radius: 50%;
+    font-size: 1.5rem;
 }
 
-.results-btn {
-    margin-top: 10px;
+.event-card.past .event-icon {
+    background-color: #ddd;
+}
+
+.event-card.upcoming .event-icon {
+    background-color: var(--primary-light);
+}
+
+.event-type {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.event-details {
+    padding-right: 10px;
+}
+
+.event-details h4 {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.event-details p {
+    margin-bottom: 5px;
     font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.event-details p i {
+    color: var(--primary-color);
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+}
+
+.event-card .results-btn {
+    align-self: center;
+    justify-self: end;
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    white-space: nowrap;
+}
+
+/* Modal aninhado */
+.results-modal {
+    z-index: 1010;
+}
+
+.modal-content h3.mt-4 {
+    margin-top: 1.5rem;
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-content h3.mt-4:before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 20px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+}
+
+/* Ajuste responsivo para os eventos */
+@media (max-width: 768px) {
+    .event-card {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .event-icon {
+        margin-bottom: 10px;
+    }
+    
+    .event-card .results-btn {
+        justify-self: stretch;
+        margin-top: 15px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .close {
+        top: 10px;
+        right: 10px;
+    }
 }
 
 /* Media Queries - Responsividade aprimorada */
@@ -1863,4 +2009,268 @@ footer a:hover {
 footer p {
     margin-bottom: 10px;
     color: rgba(255, 255, 255, 0.7);
+}
+
+/* Estilo para a contagem de eventos */
+.event-count {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-top: 5px;
+}
+
+/* Calendário de Corridas melhorado */
+.races-list {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.race-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    border-left: 5px solid transparent;
+    overflow: hidden;
+    position: relative;
+}
+
+.race-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.race-card.past {
+    border-left-color: #f0f0f0;
+}
+
+.race-card.upcoming {
+    border-left-color: var(--primary-color);
+}
+
+/* Estilo para o botão de visualizar eventos */
+.view-events-btn {
+    margin-top: 10px;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.view-events-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Estilos para os cards de eventos dentro do modal */
+.events-list {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.event-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid var(--primary-color);
+    transition: var(--transition);
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow);
+}
+
+.event-card.past {
+    border-left-color: #ccc;
+}
+
+.event-card.upcoming {
+    border-left-color: var(--primary-color);
+}
+
+.event-type {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.event-details {
+    padding: 10px 0;
+}
+
+.event-details h4 {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.event-details p {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.event-card .results-btn {
+    align-self: flex-end;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    padding: 8px 15px;
+}
+
+/* Modal aninhado */
+.results-modal {
+    z-index: 1010;
+}
+
+.modal-content h3.mt-4 {
+    margin-top: 1.5rem;
+}
+
+/* Tabelas de resultados */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.results-table th,
+.results-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.results-table th {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.results-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.results-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Responsividade para a tabela de resultados */
+@media (max-width: 768px) {
+    .results-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .results-table th,
+    .results-table td {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Destaques para posições na tabela de resultados */
+.position-gold {
+    color: #FFD700;
+    font-weight: 800;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.position-gold::before {
+    content: "🏆";
+    position: absolute;
+    font-size: 8px;
+    left: 0;
+    top: 0;
+}
+
+.position-silver {
+    color: #C0C0C0;
+    font-weight: 700;
+}
+
+.position-bronze {
+    color: #CD7F32;
+    font-weight: 700;
+}
+
+/* Melhorias finais para os cards de corrida */
+.race-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+        "round info date"
+        "round info date"
+        "button button button";
+    gap: 15px;
+    padding: 25px;
+}
+
+.race-round {
+    grid-area: round;
+}
+
+.race-info {
+    grid-area: info;
+}
+
+.race-date {
+    grid-area: date;
+    justify-self: end;
+}
+
+.view-events-btn {
+    grid-area: button;
+    margin-top: 10px;
+}
+
+.event-count {
+    display: inline-block;
+    background-color: var(--primary-light);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+    .race-card {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            "round info"
+            "date date"
+            "button button";
+        padding: 20px;
+    }
+    
+    .race-date {
+        justify-self: start;
+        margin-top: 10px;
+    }
 } 
