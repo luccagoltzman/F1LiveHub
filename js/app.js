@@ -722,6 +722,183 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Adicionar observador de interseção para animar elementos quando entrarem na viewport
+    const setupIntersectionObserver = () => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        
+        // Observar grids e listas
+        document.querySelectorAll('.drivers-grid, .teams-grid, .races-list').forEach(grid => {
+            observer.observe(grid);
+        });
+    };
+
+    // Adicionar efeito de hover para os cards de corrida
+    const setupRaceCardEffects = () => {
+        document.querySelectorAll('.race-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.1)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = 'var(--card-shadow)';
+            });
+        });
+    };
+
+    // Melhoria para o tema alternado
+    const enhanceThemeToggle = () => {
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        
+        // Pulsar o botão de tema quando a página carregar para chamar atenção
+        setTimeout(() => {
+            themeToggleBtn.classList.add('pulse');
+            setTimeout(() => {
+                themeToggleBtn.classList.remove('pulse');
+            }, 1000);
+        }, 3000);
+    };
+
+    // Função para exibir notificação de carregamento completo
+    const showPageLoadedNotification = () => {
+        setTimeout(() => {
+            notifications.add(
+                'Página Carregada',
+                'Todos os dados foram carregados com sucesso!',
+                'success'
+            );
+        }, 1500);
+    };
+
+    // Função para melhorar o posicionamento das tabelas
+    const enhanceTableAppearance = () => {
+        // Destacar a linha da tabela quando o usuário passar o mouse
+        document.querySelectorAll('.standings-table tbody tr').forEach((row, index) => {
+            row.addEventListener('mouseenter', () => {
+                row.style.backgroundColor = 'rgba(0, 0, 0, 0.03)';
+                
+                // Destacar a posição com cores especiais para os 3 primeiros
+                const posCell = row.querySelector('.col-position');
+                if (posCell) {
+                    if (index === 0) {
+                        posCell.style.color = 'gold';
+                        posCell.style.fontWeight = '800';
+                    } else if (index === 1) {
+                        posCell.style.color = 'silver';
+                        posCell.style.fontWeight = '800';
+                    } else if (index === 2) {
+                        posCell.style.color = '#cd7f32'; // Bronze
+                        posCell.style.fontWeight = '800';
+                    }
+                }
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.style.backgroundColor = '';
+                
+                // Restaurar estilos
+                const posCell = row.querySelector('.col-position');
+                if (posCell) {
+                    posCell.style.color = '';
+                    posCell.style.fontWeight = '';
+                }
+            });
+        });
+    };
+
+    // Atualizar imagens com lazy loading para melhor performance
+    const setupLazyLoading = () => {
+        if ('loading' in HTMLImageElement.prototype) {
+            document.querySelectorAll('img').forEach(img => {
+                img.setAttribute('loading', 'lazy');
+            });
+        }
+    };
+
+    // Executar funções de melhoria após o carregamento dos dados
+    const enhanceUI = () => {
+        setupIntersectionObserver();
+        enhanceThemeToggle();
+        setupLazyLoading();
+        
+        // Executar as melhorias específicas após carregamento do conteúdo
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    setupRaceCardEffects();
+                    enhanceTableAppearance();
+                }
+            }
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Mostrar notificação quando a página estiver totalmente carregada
+        window.addEventListener('load', showPageLoadedNotification);
+    };
+
+    // Inicialização
+    // Carregar tema salvo
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.innerHTML = `<i class="fas fa-${savedTheme === 'light' ? 'moon' : 'sun'}"></i>`;
+
+    // Carregar temporadas disponíveis
+    loadSeasons();
+
+    // Exemplo de notificação inicial
+    notifications.add(
+        'Bem-vindo ao F1LiveHub',
+        'Acompanhe todas as informações da Fórmula 1 em tempo real!',
+        'info'
+    );
+
+    // Registrar timestamp de inicialização
+    const initTimestamp = Date.now();
+    console.log(`Inicialização da aplicação: ${new Date(initTimestamp).toISOString()}`);
+
+    // Carregar apenas os dados da página inicial
+    // Verificar qual página está ativa e carregar seus dados
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+        const pageId = activePage.id;
+        console.log(`Página inicial ativa: ${pageId}`);
+        if (pageId === 'drivers') {
+            loadDrivers();
+        } else if (pageId === 'teams') {
+            loadTeams();
+        } else if (pageId === 'races') {
+            loadRaces();
+        } else if (pageId === 'standings') {
+            loadStandings();
+        } else if (pageId === 'home') {
+            // Na página inicial, pré-carregamos os pilotos para quando o usuário navegar para essa seção
+            console.log('Pré-carregando pilotos na página inicial');
+            loadDrivers();
+        }
+    }
+
+    // Adicionar as melhorias de UI
+    enhanceUI();
+
     // Inicialização das novas funcionalidades
     document.addEventListener('DOMContentLoaded', () => {
         // Carregar tema salvo

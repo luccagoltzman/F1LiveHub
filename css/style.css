@@ -1,34 +1,51 @@
 /* Variáveis Globais */
 :root {
     --primary-color: #e10600;
-    --secondary-color: #1f1f1f;
+    --primary-hover: #c00500;
+    --primary-light: #ff6b66;
+    --primary-dark: #990400;
+    --secondary-color: #15151e;
+    --secondary-light: #2a2a3c;
+    --secondary-dark: #0b0b10;
     --tertiary-color: #38383f;
     --text-light: #ffffff;
-    --text-dark: #333333;
+    --text-dark: #222222;
+    --text-muted: #777777;
     --bg-light: #f8f8f8;
     --card-bg: #ffffff;
-    --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
     --border-color: #e0e0e0;
+    --border-radius: 10px;
     --transition: all 0.3s ease;
     --background-color: #ffffff;
-    --text-color: #333333;
+    --text-color: #222222;
     --card-background: #f8f8f8;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --transition-speed: 0.3s;
+    --accent-color: #1e90ff;
+    --accent-hover: #0b78de;
+    --accent-light: #5fb0ff;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --error-color: #e74c3c;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --max-width: 1400px;
 }
 
 /* Modo escuro */
 [data-theme="dark"] {
     --text-dark: #f1f1f1;
-    --bg-light: #121212;
-    --card-bg: #1e1e1e;
-    --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    --border-color: #404040;
-    --tertiary-color: #424242;
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --card-background: #2d2d2d;
-    --shadow-color: rgba(255, 255, 255, 0.05);
+    --text-muted: #a0a0a0;
+    --bg-light: #121218;
+    --card-bg: #1e1e2a;
+    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --border-color: #404050;
+    --tertiary-color: #424250;
+    --background-color: #15151e;
+    --text-color: #f1f1f1;
+    --card-background: #272736;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --secondary-light: #3a3a50;
 }
 
 /* Reset e Estilos Básicos */
@@ -39,16 +56,17 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: var(--font-family);
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--background-color);
     transition: background-color var(--transition-speed), color var(--transition-speed);
+    overflow-x: hidden;
 }
 
 .container {
     width: 90%;
-    max-width: 1200px;
+    max-width: var(--max-width);
     margin: 0 auto;
     padding: 0 15px;
 }
@@ -67,15 +85,23 @@ img {
     height: auto;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-dark);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
 /* Header e Navegação */
 header {
     background-color: var(--secondary-color);
     color: var(--text-light);
-    padding: 15px 0;
-    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0;
+    box-shadow: 0 4px 20px var(--shadow-color);
     position: sticky;
     top: 0;
     z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 header .container {
@@ -84,61 +110,108 @@ header .container {
     align-items: center;
     padding: 1rem;
     flex-wrap: wrap;
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
 }
 
 .logo h1 {
     font-size: 1.8rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-light);
     margin: 0;
+    letter-spacing: -0.5px;
+    position: relative;
+}
+
+.logo h1::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
 }
 
 nav {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    height: 100%;
 }
 
 nav ul {
     display: flex;
     list-style: none;
-    gap: 1rem;
+    gap: 0.5rem;
     margin: 0;
     padding: 0;
-    flex-wrap: wrap;
+    height: 100%;
+    align-items: center;
+}
+
+nav li {
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 nav a {
-    color: #ffffff;
+    color: var(--text-light);
     text-decoration: none;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color var(--transition-speed);
+    border-radius: 6px;
+    transition: all var(--transition-speed);
+    font-weight: 500;
+    position: relative;
 }
 
-nav a:hover,
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
 nav a.active {
+    color: var(--text-light);
     background-color: var(--primary-color);
+    font-weight: 600;
+}
+
+nav a.active:hover {
+    background-color: var(--primary-hover);
 }
 
 /* Botão de alternância do tema */
 .theme-toggle {
     margin-left: 20px;
+    display: flex;
+    align-items: center;
 }
 
 #theme-toggle-btn {
-    background: none;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     color: var(--text-light);
     font-size: 1.2rem;
     cursor: pointer;
-    padding: 5px;
+    padding: 10px;
     border-radius: 50%;
     transition: var(--transition);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #theme-toggle-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: rotate(15deg);
 }
 
 /* Main Content */
@@ -150,67 +223,150 @@ main {
 /* Página Home */
 .hero {
     text-align: center;
-    padding: 40px 0;
-    margin-bottom: 30px;
+    padding: 60px 0;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
+    color: var(--text-light);
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../img/f1_hub.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    z-index: 1;
+}
+
+.hero > * {
+    position: relative;
+    z-index: 2;
 }
 
 .hero h2 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 15px;
-    color: var(--primary-color);
+    color: var(--text-light);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .quick-access {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
 }
 
 .card {
     background-color: var(--card-bg);
-    border-radius: 8px;
-    padding: 25px;
+    border-radius: var(--border-radius);
+    padding: 30px;
     text-align: center;
     box-shadow: var(--card-shadow);
     transition: var(--transition);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 .card i {
-    font-size: 2.5rem;
+    font-size: 3rem;
     color: var(--primary-color);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    transition: var(--transition);
+}
+
+.card:hover i {
+    transform: scale(1.1) rotate(-5deg);
 }
 
 .card h3 {
-    margin-bottom: 10px;
-    font-size: 1.3rem;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: var(--text-dark);
 }
 
 .card p {
-    margin-bottom: 20px;
-    color: #666;
+    margin-bottom: 25px;
+    color: var(--text-muted);
+    line-height: 1.6;
 }
 
 .btn {
     display: inline-block;
     background-color: var(--primary-color);
     color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
     transition: var(--transition);
     cursor: pointer;
     border: none;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(225, 6, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
 }
 
 .btn:hover {
-    background-color: #c00500;
-    transform: scale(1.05);
+    background-color: var(--primary-hover);
+    transform: translateY(-3px);
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:active {
+    transform: translateY(-1px);
 }
 
 /* Sistema de Busca */
@@ -399,75 +555,132 @@ main {
 .drivers-grid, .teams-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 30px;
     margin-top: 30px;
 }
 
 .driver-card, .team-card {
     background-color: var(--card-bg);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--card-shadow);
     transition: var(--transition);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
 }
 
 .driver-card:hover, .team-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .driver-header, .team-header {
-    background-color: var(--secondary-color);
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
     color: white;
-    padding: 15px;
+    padding: 20px;
     position: relative;
+    text-align: center;
+}
+
+.driver-header h3, .team-header h3 {
+    margin-bottom: 5px;
+    color: white;
+    font-size: 1.5rem;
 }
 
 .driver-number {
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 1.8rem;
-    font-weight: bold;
-    opacity: 0.7;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.2);
 }
 
 .driver-info, .team-info {
-    padding: 15px;
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.driver-info img, .team-info img {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    max-width: 150px;
+}
+
+.driver-card:hover .driver-info img,
+.team-card:hover .team-info img {
+    transform: scale(1.05);
 }
 
 .driver-info p, .team-info p {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+.driver-info p strong, .team-info p strong {
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 /* Calendário de Corridas */
 .races-list {
     margin-top: 30px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 .race-card {
     background-color: var(--card-bg);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     padding: 20px;
-    margin-bottom: 20px;
     box-shadow: var(--card-shadow);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
+    transition: all 0.3s ease;
+    border-left: 5px solid transparent;
+    overflow: hidden;
+    position: relative;
+}
+
+.race-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.race-card.past {
+    border-left-color: #f0f0f0;
+}
+
+.race-card.upcoming {
+    border-left-color: var(--accent-color);
 }
 
 .race-round {
     background-color: var(--primary-color);
     color: white;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    margin-right: 15px;
+    margin-right: 20px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 10px rgba(225, 6, 0, 0.2);
 }
 
 .race-info {
@@ -475,41 +688,119 @@ main {
     min-width: 200px;
 }
 
+.race-info h3 {
+    margin-bottom: 10px;
+    color: var(--text-dark);
+    font-size: 1.3rem;
+}
+
+.race-info p {
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
 .race-date {
     text-align: right;
-    min-width: 120px;
+    min-width: 150px;
+    padding-left: 20px;
 }
 
 .race-date .date {
     font-weight: bold;
     font-size: 1.1rem;
+    color: var(--text-dark);
+    margin-bottom: 5px;
 }
 
 .race-date .time {
-    color: #666;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Status de corridas */
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status.past {
+    background-color: #f0f0f0;
+    color: #777;
+}
+
+.status.upcoming {
+    background-color: #e6f7ff;
+    color: var(--accent-color);
+}
+
+.race-card .results-btn {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    background-color: var(--accent-color);
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.race-card .results-btn:hover {
+    background-color: var(--accent-hover);
 }
 
 /* Classificação */
 .tabs {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    padding: 0 1px;
 }
 
 .tab-btn {
     background: none;
     border: none;
-    padding: 10px 20px;
+    padding: 15px 25px;
     cursor: pointer;
     font-size: 1rem;
     transition: var(--transition);
     opacity: 0.7;
     color: var(--text-dark);
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    position: relative;
+}
+
+.tab-btn:hover {
+    opacity: 0.9;
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
 .tab-btn.active {
     opacity: 1;
-    border-bottom: 3px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid var(--card-background);
 }
 
 .tab-pane {
@@ -518,32 +809,329 @@ main {
 
 .tab-pane.active {
     display: block;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .standings-table {
     width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 1rem 0 2.5rem;
     background-color: var(--card-background);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     overflow: hidden;
+    box-shadow: var(--card-shadow);
+    position: relative;
 }
 
 .standings-table th,
 .standings-table td {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
 }
 
 .standings-table th {
     background-color: var(--secondary-color);
     color: white;
     font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.standings-table tr {
+    background-color: var(--card-bg);
+    transition: all 0.2s ease;
+}
+
+.standings-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.standings-table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 .standings-table tr:last-child td {
     border-bottom: none;
+}
+
+.standings-table td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Colunas responsivas */
+@media (max-width: 768px) {
+    .standings-table {
+        display: table;
+        width: 100%;
+    }
+    
+    .hide-on-mobile {
+        display: none;
+    }
+    
+    .standings-table th.col-position,
+    .standings-table td.col-position {
+        width: 50px;
+        text-align: center;
+    }
+    
+    .standings-table th.col-driver,
+    .standings-table td.col-driver,
+    .standings-table th.col-team,
+    .standings-table td.col-team {
+        width: auto;
+    }
+    
+    .standings-table th.col-points,
+    .standings-table td.col-points {
+        width: 80px;
+        text-align: right;
+    }
+    
+    /* Adicionar um pequeno indicador para a posição */
+    .standings-table td.col-position {
+        position: relative;
+    }
+    
+    .standings-table td.col-position:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: var(--primary-color);
+    }
+
+    .drivers-grid,
+    .teams-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero h2 {
+        font-size: 2rem;
+    }
+    
+    .race-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .race-date {
+        text-align: left;
+        margin-top: 15px;
+    }
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .search-box {
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .season-selector {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .menu-toggle {
+        display: block;
+        position: fixed;
+        top: 1.2rem;
+        left: 1.2rem;
+        z-index: 1002;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 6px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .menu-toggle:hover {
+        background: var(--primary-hover);
+    }
+    
+    nav {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 300px;
+        height: 100vh;
+        background-color: var(--secondary-color);
+        padding: 5rem 1.5rem 1.5rem;
+        transition: transform 0.3s ease;
+        z-index: 1001;
+        flex-direction: column;
+        align-items: flex-start;
+        overflow-y: auto;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    nav.active {
+        transform: translateX(300px);
+    }
+    
+    nav ul {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.7rem;
+    }
+    
+    nav li {
+        width: 100%;
+    }
+    
+    nav a {
+        display: block;
+        padding: 1rem;
+        width: 100%;
+        text-align: left;
+        border-radius: var(--border-radius);
+    }
+    
+    .season-controls {
+        width: 100%;
+        margin: 1.5rem 0;
+        justify-content: center;
+    }
+    
+    #current-season-select {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .theme-toggle {
+        margin: 1rem 0;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 300px;
+        width: calc(100% - 300px);
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        backdrop-filter: blur(3px);
+    }
+    
+    .overlay.active {
+        display: block;
+        opacity: 1;
+    }
+    
+    nav:not(.active) + .overlay.active {
+        left: 0;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h2 {
+        font-size: 1.7rem;
+    }
+    
+    .race-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .race-info {
+        margin: 15px 0;
+        width: 100%;
+    }
+    
+    .race-date {
+        text-align: left;
+        padding-left: 0;
+        width: 100%;
+    }
+    
+    .standings-table th,
+    .standings-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .standings-table th.col-position,
+    .standings-table td.col-position {
+        width: 40px;
+    }
+    
+    .standings-table th.col-points,
+    .standings-table td.col-points {
+        width: 60px;
+    }
+    
+    .driver-card,
+    .team-card {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .logo h1 {
+        font-size: 1.4rem;
+    }
+    
+    nav a {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .standings-table th,
+    .standings-table td {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .tab-btn {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Imprimir as colunas corretamente na classificação */
+.standings-table th.col-position,
+.standings-table td.col-position {
+    text-align: center;
+}
+
+.standings-table th.col-points,
+.standings-table td.col-points {
+    text-align: right;
+}
+
+.standings-table th.col-driver,
+.standings-table td.col-driver,
+.standings-table th.col-team,
+.standings-table td.col-team {
+    text-align: left;
 }
 
 /* Página de Histórico */
@@ -609,9 +1197,28 @@ main {
 /* Loading */
 .loading {
     text-align: center;
-    padding: 40px;
+    padding: 50px;
     font-size: 1.2rem;
-    color: #666;
+    color: var(--text-muted);
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 20px auto 0;
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Mensagens de Erro */
@@ -708,252 +1315,174 @@ main {
     font-size: 0.9rem;
 }
 
-/* Status de corridas */
-.status {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-.status.past {
-    background-color: #f0f0f0;
-    color: #777;
-}
-
-.status.upcoming {
-    background-color: #e6f7ff;
-    color: #1890ff;
-}
-
-.race-card.past {
-    border-left: 3px solid #f0f0f0;
-}
-
-.race-card.upcoming {
-    border-left: 3px solid #1890ff;
-}
-
-/* Footer */
-footer {
-    background-color: var(--secondary-color);
-    color: var(--text-light);
-    padding: 20px 0;
-    text-align: center;
-}
-
-footer a {
-    color: var(--primary-color);
-}
-
-footer a:hover {
-    text-decoration: underline;
-}
-
-/* Media Queries */
+/* Media Queries - Responsividade aprimorada */
 @media (max-width: 1024px) {
     .container {
-        padding: 0 15px;
+        width: 95%;
+    }
+    
+    .hero h2 {
+        font-size: 2.5rem;
+    }
+    
+    .quick-access {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
     
     .drivers-grid,
     .teams-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
+    body {
+        font-size: 0.95rem;
+    }
+    
     header .container {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    nav {
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    nav a {
-        display: block;
-        text-align: center;
-    }
-
-    .season-controls {
-        width: 100%;
-        justify-content: center;
-        margin: 0.5rem 0;
-    }
-
-    #current-season-select {
-        width: 100%;
-        max-width: 200px;
-    }
-
-    .standings-table {
-        display: table;
-        width: 100%;
+        height: auto;
+        padding: 0.7rem 1rem;
     }
     
-    .hide-on-mobile {
-        display: none;
+    .hero {
+        padding: 40px 0;
     }
     
-    .standings-table th.col-position,
-    .standings-table td.col-position {
-        width: 50px;
-        text-align: center;
-    }
-    
-    .standings-table th.col-driver,
-    .standings-table td.col-driver,
-    .standings-table th.col-team,
-    .standings-table td.col-team {
-        width: auto;
-    }
-    
-    .standings-table th.col-points,
-    .standings-table td.col-points {
-        width: 80px;
-        text-align: right;
-    }
-    
-    /* Adicionar um pequeno indicador para a posição */
-    .standings-table td.col-position {
-        position: relative;
-    }
-    
-    .standings-table td.col-position:before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background-color: var(--primary-color);
-    }
-
-    .drivers-grid,
-    .teams-grid {
-        grid-template-columns: 1fr;
-    }
-
     .hero h2 {
         font-size: 2rem;
     }
     
-    .race-card {
-        flex-direction: column;
-        align-items: flex-start;
+    .hero p {
+        font-size: 1rem;
     }
     
-    .race-date {
-        text-align: left;
-        margin-top: 15px;
+    .race-card {
+        padding: 15px;
     }
-
-    .page-header {
+    
+    .race-round {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin-right: 15px;
+    }
+    
+    .race-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .race-date .date {
+        font-size: 1rem;
+    }
+    
+    .tab-btn {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* Menu Mobile */
+    header .container {
         flex-direction: column;
+        align-items: flex-start;
+        padding: 0.7rem 1rem 0.7rem 4rem;
     }
-
-    .search-box {
-        margin-top: 15px;
-        width: 100%;
-    }
-
-    .season-selector {
-        width: 100%;
-        margin-top: 15px;
-    }
-
+    
     .menu-toggle {
         display: block;
         position: fixed;
-        top: 1rem;
-        left: 1rem;
+        top: 1.2rem;
+        left: 1.2rem;
         z-index: 1002;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 6px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
-
+    
+    .menu-toggle:hover {
+        background: var(--primary-hover);
+    }
+    
     nav {
         position: fixed;
         top: 0;
-        left: -280px;
-        width: 280px;
+        left: -300px;
+        width: 300px;
         height: 100vh;
         background-color: var(--secondary-color);
-        padding: 4rem 1rem 1rem;
+        padding: 5rem 1.5rem 1.5rem;
         transition: transform 0.3s ease;
         z-index: 1001;
         flex-direction: column;
         align-items: flex-start;
         overflow-y: auto;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
     }
-
+    
     nav.active {
-        transform: translateX(280px);
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+        transform: translateX(300px);
     }
-
+    
     nav ul {
         flex-direction: column;
         width: 100%;
+        gap: 0.7rem;
     }
-
+    
+    nav li {
+        width: 100%;
+    }
+    
     nav a {
         display: block;
         padding: 1rem;
         width: 100%;
         text-align: left;
-        border-radius: 4px;
+        border-radius: var(--border-radius);
     }
-
-    nav a:hover {
-        background-color: var(--primary-color);
-    }
-
+    
     .season-controls {
         width: 100%;
-        margin: 1rem 0;
+        margin: 1.5rem 0;
+        justify-content: center;
     }
-
+    
     #current-season-select {
         width: 100%;
+        max-width: 200px;
     }
-
+    
+    .theme-toggle {
+        margin: 1rem 0;
+        width: 100%;
+        justify-content: center;
+    }
+    
     .overlay {
         display: none;
         position: fixed;
         top: 0;
-        left: 280px;
-        width: calc(100% - 280px);
+        left: 300px;
+        width: calc(100% - 300px);
         height: 100vh;
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 1000;
         opacity: 0;
         transition: opacity 0.3s ease;
+        backdrop-filter: blur(3px);
     }
-
+    
     .overlay.active {
         display: block;
         opacity: 1;
     }
-
-    header .container {
-        padding-left: 4rem;
-    }
-
-    .theme-toggle {
-        margin: 1rem 0;
-    }
-
+    
     nav:not(.active) + .overlay.active {
         left: 0;
         width: 100%;
@@ -961,26 +1490,30 @@ footer a:hover {
 }
 
 @media (max-width: 480px) {
-    .driver-card,
-    .team-card {
-        padding: 1rem;
+    .hero h2 {
+        font-size: 1.7rem;
     }
-
-    .driver-header,
-    .team-header {
+    
+    .race-card {
         flex-direction: column;
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
     }
-
-    .driver-info,
-    .team-info {
-        text-align: center;
+    
+    .race-info {
+        margin: 15px 0;
+        width: 100%;
     }
-
+    
+    .race-date {
+        text-align: left;
+        padding-left: 0;
+        width: 100%;
+    }
+    
     .standings-table th,
     .standings-table td {
         padding: 0.75rem 0.5rem;
+        font-size: 0.9rem;
     }
     
     .standings-table th.col-position,
@@ -992,36 +1525,51 @@ footer a:hover {
     .standings-table td.col-points {
         width: 60px;
     }
+    
+    .driver-card,
+    .team-card {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 320px) {
     .logo h1 {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
-
+    
     nav a {
-        padding: 0.4rem 0.8rem;
+        padding: 0.8rem;
         font-size: 0.9rem;
     }
-
+    
     .standings-table th,
     .standings-table td {
-        padding: 0.4rem;
+        padding: 0.5rem 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .tab-btn {
+        padding: 10px;
         font-size: 0.8rem;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     * {
-        transition: none !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
 
 @media (forced-colors: active) {
-    .driver-card,
-    .team-card,
-    .standings-table {
-        border: 1px solid CanvasText;
+    .card, .driver-card, .team-card, .standings-table, .race-card {
+        border: 1px solid ButtonText;
+    }
+    
+    .btn, .tab-btn, .race-round, .status {
+        border: 1px solid ButtonText;
     }
 }
 
@@ -1030,27 +1578,34 @@ footer a:hover {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-left: auto;
+    margin-left: 1.5rem;
+    position: relative;
 }
 
 #current-season-select {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 0.5rem 2rem 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    border-radius: 6px;
     font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: calc(100% - 0.5rem) center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #current-season-select:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(225, 6, 0, 0.3);
+    box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.3);
+}
+
+#current-season-select:hover {
+    background-color: var(--primary-hover);
 }
 
 /* Cards responsivos */
@@ -1191,4 +1746,121 @@ footer a:hover {
         left: 0;
         width: 100%;
     }
+}
+
+/* Animações e efeitos */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.page.active {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.card, .driver-card, .team-card, .race-card {
+    animation: slideInUp 0.5s ease forwards;
+}
+
+.quick-access .card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.quick-access .card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.quick-access .card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.quick-access .card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.drivers-grid > *, .teams-grid > *, .races-list > * {
+    opacity: 0;
+    animation: slideInUp 0.5s ease forwards;
+    animation-play-state: paused;
+}
+
+.drivers-grid.visible > *, .teams-grid.visible > *, .races-list.visible > * {
+    animation-play-state: running;
+}
+
+/* Melhorias no footer */
+footer {
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    padding: 40px 0 25px;
+    text-align: center;
+    margin-top: 50px;
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light), var(--primary-color));
+    background-size: 200% 100%;
+    animation: gradient 3s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+footer a {
+    color: var(--primary-color);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+footer a:hover {
+    color: var(--primary-light);
+    text-decoration: none;
+}
+
+footer p {
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.7);
 } 

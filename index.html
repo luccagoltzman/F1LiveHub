@@ -6,10 +6,15 @@
     <title>F1LiveHub - Seu Hub de Fórmula 1</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="https://www.formula1.com/etc/designs/fom-website/favicon.ico" type="image/x-icon">
+    <meta name="description" content="F1LiveHub - Seu hub completo para acompanhar estatísticas, resultados e informações sobre Fórmula 1 em tempo real.">
 </head>
 <body>
     <header>
-        <button class="menu-toggle" id="menu-toggle">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu de navegação">
             <i class="fas fa-bars"></i>
         </button>
         <div class="container">
@@ -18,15 +23,15 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="#" class="active" data-page="home">Início</a></li>
-                    <li><a href="#" data-page="drivers">Pilotos</a></li>
-                    <li><a href="#" data-page="teams">Equipes</a></li>
-                    <li><a href="#" data-page="races">Corridas</a></li>
-                    <li><a href="#" data-page="standings">Classificação</a></li>
-                    <li><a href="#" data-page="history">Histórico</a></li>
+                    <li><a href="#" class="active" data-page="home"><i class="fas fa-home"></i> Início</a></li>
+                    <li><a href="#" data-page="drivers"><i class="fas fa-user-astronaut"></i> Pilotos</a></li>
+                    <li><a href="#" data-page="teams"><i class="fas fa-car-side"></i> Equipes</a></li>
+                    <li><a href="#" data-page="races"><i class="fas fa-flag-checkered"></i> Corridas</a></li>
+                    <li><a href="#" data-page="standings"><i class="fas fa-trophy"></i> Classificação</a></li>
+                    <li><a href="#" data-page="history"><i class="fas fa-history"></i> Histórico</a></li>
                 </ul>
                 <div class="theme-toggle">
-                    <button id="theme-toggle-btn">
+                    <button id="theme-toggle-btn" aria-label="Alternar tema claro/escuro">
                         <i class="fas fa-moon"></i>
                     </button>
                 </div>
@@ -71,7 +76,7 @@
                 </div>
                 
                 <div class="search-container">
-                    <h3>Busca Rápida</h3>
+                    <h3><i class="fas fa-search"></i> Busca Rápida</h3>
                     <div class="search-box">
                         <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe...">
                         <button id="search-btn"><i class="fas fa-search"></i></button>
@@ -80,7 +85,7 @@
                 </div>
                 
                 <div class="notification-center">
-                    <h3>Notificações <span class="notification-badge">0</span></h3>
+                    <h3><i class="fas fa-bell"></i> Notificações <span class="notification-badge">0</span></h3>
                     <div id="notifications-list" class="notifications-list">
                         <p class="empty-notification">Sem notificações no momento.</p>
                     </div>
@@ -89,36 +94,33 @@
 
             <section id="drivers" class="page">
                 <div class="page-header">
-                    <h2>Pilotos da Temporada</h2>
+                    <h2><i class="fas fa-user-astronaut"></i> Pilotos da Temporada</h2>
                     <div class="search-box">
                         <input type="text" id="driver-search" placeholder="Buscar piloto...">
                         <button class="search-btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
-                <!-- <div class="loading">Carregando pilotos...</div> -->
                 <div class="drivers-grid"></div>
             </section>
 
             <section id="teams" class="page">
                 <div class="page-header">
-                    <h2>Equipes da Temporada</h2>
+                    <h2><i class="fas fa-car-side"></i> Equipes da Temporada</h2>
                     <div class="search-box">
                         <input type="text" id="team-search" placeholder="Buscar equipe...">
                         <button class="search-btn"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
-                <!-- <div class="loading">Carregando equipes...</div> -->
                 <div class="teams-grid"></div>
             </section>
 
             <section id="races" class="page">
-                <h2>Calendário de Corridas</h2>
-                <!-- <div class="loading">Carregando calendário...</div> -->
+                <h2><i class="fas fa-flag-checkered"></i> Calendário de Corridas</h2>
                 <div class="races-list"></div>
             </section>
 
             <section id="standings" class="page">
-                <h2>Classificação</h2>
+                <h2><i class="fas fa-trophy"></i> Classificação</h2>
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="driver-standings">Pilotos</button>
                     <button class="tab-btn" data-tab="constructor-standings">Construtores</button>
@@ -158,7 +160,7 @@
             
             <section id="history" class="page">
                 <div class="page-header">
-                    <h2>Histórico de Temporadas</h2>
+                    <h2><i class="fas fa-history"></i> Histórico de Temporadas</h2>
                     <div class="season-selector">
                         <select id="season-select">
                             <option value="">Selecione uma temporada...</option>
@@ -176,7 +178,7 @@
     <!-- Template para modal de detalhes volta a volta -->
     <template id="lap-by-lap-template">
         <div class="lap-by-lap-container">
-            <h3>Detalhes Volta a Volta</h3>
+            <h3><i class="fas fa-stopwatch"></i> Detalhes Volta a Volta</h3>
             <div class="lap-chart-container">
                 <canvas id="lap-chart"></canvas>
             </div>
