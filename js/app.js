@@ -945,38 +945,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para melhorar o posicionamento das tabelas
     const enhanceTableAppearance = () => {
-        // Destacar a linha da tabela quando o usuário passar o mouse
-        document.querySelectorAll('.standings-table tbody tr, .results-table tbody tr').forEach((row, index) => {
-            row.addEventListener('mouseenter', () => {
-                row.style.backgroundColor = 'rgba(0, 0, 0, 0.03)';
-                
-                // Destacar a posição com cores especiais para os 3 primeiros
-                const posCell = row.querySelector('.col-position');
-                if (posCell) {
-                    if (index === 0) {
-                        posCell.style.color = 'gold';
-                        posCell.style.fontWeight = '800';
-                    } else if (index === 1) {
-                        posCell.style.color = 'silver';
-                        posCell.style.fontWeight = '800';
-                    } else if (index === 2) {
-                        posCell.style.color = '#cd7f32'; // Bronze
-                        posCell.style.fontWeight = '800';
+        // Verificar se é display móvel
+        const isMobile = window.innerWidth <= 768;
+        
+        // Destacar a linha da tabela quando o usuário passar o mouse (apenas em desktop)
+        if (!isMobile) {
+            document.querySelectorAll('.standings-table tbody tr, .results-table tbody tr').forEach((row, index) => {
+                row.addEventListener('mouseenter', () => {
+                    row.style.backgroundColor = 'rgba(0, 0, 0, 0.03)';
+                    
+                    // Destacar a posição com cores especiais para os 3 primeiros
+                    const posCell = row.querySelector('.col-position');
+                    if (posCell) {
+                        if (index === 0) {
+                            posCell.style.color = 'gold';
+                            posCell.style.fontWeight = '800';
+                        } else if (index === 1) {
+                            posCell.style.color = 'silver';
+                            posCell.style.fontWeight = '800';
+                        } else if (index === 2) {
+                            posCell.style.color = '#cd7f32'; // Bronze
+                            posCell.style.fontWeight = '800';
+                        }
                     }
-                }
-            });
-            
-            row.addEventListener('mouseleave', () => {
-                row.style.backgroundColor = '';
+                });
                 
-                // Restaurar estilos
-                const posCell = row.querySelector('.col-position');
-                if (posCell) {
-                    posCell.style.color = '';
-                    posCell.style.fontWeight = '';
-                }
+                row.addEventListener('mouseleave', () => {
+                    row.style.backgroundColor = '';
+                    
+                    // Restaurar estilos
+                    const posCell = row.querySelector('.col-position');
+                    if (posCell) {
+                        posCell.style.color = '';
+                        posCell.style.fontWeight = '';
+                    }
+                });
             });
-        });
+        }
         
         // Aplicar estilos adicionais às tabelas de resultados
         document.querySelectorAll('.results-table').forEach(table => {
@@ -999,6 +1004,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         cell.style.fontWeight = '700';
                     }
                 });
+            }
+        });
+        
+        // Atualizar quando o tamanho da tela mudar
+        window.addEventListener('resize', () => {
+            const newIsMobile = window.innerWidth <= 768;
+            // Se o estado de mobile/desktop mudar, atualize a aparência
+            if (newIsMobile !== isMobile) {
+                setTimeout(() => enhanceTableAppearance(), 300);
             }
         });
     };
@@ -1130,52 +1144,65 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cores intensas da F1
         const colors = ['#e10600', '#ffffff', '#1E5BC6', '#ffff00', '#ff9800', '#00ff00'];
         
+        // Verificar se está em um dispositivo móvel
+        const isMobile = window.innerWidth <= 768;
+        
+        // Ajustar a quantidade de fogos com base no tamanho da tela
+        const fireworksCount = isMobile ? 12 : 20;
+        
         // Criar mais explosões e em diferentes momentos
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < fireworksCount; i++) {
             setTimeout(() => {
-                // Distribuir os fogos por toda a tela
+                // Distribuir os fogos por toda a tela, adaptando para telas menores
                 const x = Math.random() * window.innerWidth;
-                const y = Math.random() * window.innerHeight * 0.8; // Deixar um pouco de espaço na parte inferior
+                // Em dispositivos móveis, usar mais espaço vertical para os fogos
+                const y = Math.random() * window.innerHeight * (isMobile ? 0.6 : 0.8);
                 
-                // Criar explosão com tamanho variado
-                const size = Math.random() > 0.7 ? 'grande' : 'normal';
-                createExplosion(x, y, colors, size);
+                // Criar explosão com tamanho variado, ajustado para telas menores
+                const size = isMobile ? 
+                    (Math.random() > 0.6 ? 'normal' : 'pequena') : 
+                    (Math.random() > 0.7 ? 'grande' : 'normal');
+                    
+                createExplosion(x, y, colors, size, isMobile);
                 
-                // Chance de criar uma explosão secundária
-                if (Math.random() > 0.5) {
+                // Chance de criar uma explosão secundária, menos em dispositivos móveis
+                if (!isMobile && Math.random() > 0.5) {
                     setTimeout(() => {
                         const offsetX = x + (Math.random() * 200 - 100);
                         const offsetY = y + (Math.random() * 200 - 100);
-                        createExplosion(offsetX, offsetY, colors, 'pequena');
+                        createExplosion(offsetX, offsetY, colors, 'pequena', isMobile);
                     }, 200 + Math.random() * 300);
                 }
-            }, i * 250 + Math.random() * 500);
+            }, i * (isMobile ? 300 : 250) + Math.random() * 500);
         }
     }
     
     // Criar uma explosão de fogos
-    function createExplosion(x, y, colors, size = 'normal') {
-        // Configurar tamanho da explosão
+    function createExplosion(x, y, colors, size = 'normal', isMobile = false) {
+        // Configurar tamanho da explosão, reduzido para dispositivos móveis
         let particleCount, flashSize, particleSizeBase, particleSizeRandom, distance;
         
+        // Ajustar parâmetros para dispositivos móveis
+        const mobileFactor = isMobile ? 0.7 : 1;
+        
         if (size === 'grande') {
-            particleCount = 70 + Math.floor(Math.random() * 40);
-            flashSize = 30;
-            particleSizeBase = 5;
-            particleSizeRandom = 10;
-            distance = 150 + Math.random() * 150;
+            particleCount = Math.floor((50 + Math.floor(Math.random() * 30)) * mobileFactor);
+            flashSize = 30 * mobileFactor;
+            particleSizeBase = 5 * mobileFactor;
+            particleSizeRandom = 10 * mobileFactor;
+            distance = (120 + Math.random() * 100) * mobileFactor;
         } else if (size === 'pequena') {
-            particleCount = 30 + Math.floor(Math.random() * 20);
-            flashSize = 10;
-            particleSizeBase = 3;
-            particleSizeRandom = 4;
-            distance = 70 + Math.random() * 80;
+            particleCount = Math.floor((20 + Math.floor(Math.random() * 15)) * mobileFactor);
+            flashSize = 10 * mobileFactor;
+            particleSizeBase = 3 * mobileFactor;
+            particleSizeRandom = 4 * mobileFactor;
+            distance = (50 + Math.random() * 50) * mobileFactor;
         } else {
-            particleCount = 50 + Math.floor(Math.random() * 30);
-            flashSize = 20;
-            particleSizeBase = 4;
-            particleSizeRandom = 8;
-            distance = 100 + Math.random() * 120;
+            particleCount = Math.floor((35 + Math.floor(Math.random() * 25)) * mobileFactor);
+            flashSize = 20 * mobileFactor;
+            particleSizeBase = 4 * mobileFactor;
+            particleSizeRandom = 8 * mobileFactor;
+            distance = (80 + Math.random() * 100) * mobileFactor;
         }
         
         // Escolher uma cor aleatória ou usar vermelho (cor F1) com mais frequência
@@ -1311,8 +1338,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Iniciar sequência de animação
     setTimeout(createFireworks, 500);
     
-    // Esconder automaticamente após mais tempo para apreciar o efeito dos fogos
-    setTimeout(hideLoadingScreen, 7500);
+    // Verificar se é dispositivo móvel para ajustar o tempo de exibição
+    const isMobileDevice = window.innerWidth <= 768;
+    // Esconder automaticamente após tempo adequado (menor em dispositivos móveis)
+    setTimeout(hideLoadingScreen, isMobileDevice ? 5000 : 7500);
     
     // Botão para pular introdução
     if (skipIntroButton) {

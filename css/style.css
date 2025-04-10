@@ -2494,4 +2494,64 @@ footer p {
 @keyframes loadingFlagWave {
     0% { background-position: 0 0; }
     100% { background-position: 25px 25px; }
+}
+
+/* Media queries para tela de loading em dispositivos móveis */
+@media (max-width: 768px) {
+    .loading-logo {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-message {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding: 0 15px;
+    }
+    
+    .checkered-flag {
+        width: 150px;
+        height: 60px;
+    }
+    
+    .loading-content {
+        padding: 1rem;
+    }
+    
+    .skip-intro {
+        display: none; /* Ocultar botão de pular introdução em dispositivos móveis */
+    }
+    
+    /* Ajustar tamanho das explosões para telas menores */
+    .firework.flash {
+        transform-origin: center;
+    }
+
+    /* Otimização de fogos de artifício para mobile */
+    .fireworks-container {
+        opacity: 0.8; /* Reduzir opacidade geral */
+    }
+    
+    /* Reduzir a quantidade de partículas para melhorar o desempenho */
+    .firework {
+        opacity: 0.7;
+        filter: blur(0.8px); /* Aumentar o desfoque para economizar recursos */
+    }
+    
+    /* Simplificar os pseudo-elementos para melhorar desempenho */
+    .firework::before,
+    .firework::after {
+        display: none; /* Remover efeitos extras em dispositivos móveis */
+    }
+    
+    /* Definir um tamanho máximo menor para explosões em mobile */
+    .firework.flash {
+        animation: flashPulseMobile 0.6s ease-out forwards;
+    }
+    
+    @keyframes flashPulseMobile {
+        0% { transform: scale(1); opacity: 0.8; }
+        40% { transform: scale(2.5); opacity: 0.6; }
+        100% { transform: scale(4); opacity: 0; }
+    }
 } 
