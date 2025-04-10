@@ -491,28 +491,31 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <table class="results-table">
                                             <thead>
                                                 <tr>
-                                                    <th width="50">Pos</th>
-                                                    <th>Piloto</th>
-                                                    <th>Equipe</th>
-                                                    <th width="60">Pontos</th>
-                                                    <th>Tempo/Status</th>
+                                                    <th class="col-position" width="50">Pos</th>
+                                                    <th class="col-driver">Piloto</th>
+                                                    <th class="col-team">Equipe</th>
+                                                    <th class="col-points" width="60">Pontos</th>
+                                                    <th class="col-status">Tempo/Status</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 ${results.map((result, index) => {
                                                     // Destacar os três primeiros colocados
-                                                    let positionClass = '';
-                                                    if (index === 0) positionClass = 'position-gold';
-                                                    else if (index === 1) positionClass = 'position-silver';
-                                                    else if (index === 2) positionClass = 'position-bronze';
+                                                    let positionClass = 'col-position';
+                                                    if (index === 0) positionClass += ' position-gold';
+                                                    else if (index === 1) positionClass += ' position-silver';
+                                                    else if (index === 2) positionClass += ' position-bronze';
+                                                    
+                                                    // Verificar se o status indica abandono
+                                                    const statusClass = (result.status && result.status.toLowerCase().includes('retired')) ? 'col-status retired' : 'col-status';
                                                     
                                                     return `
                                                         <tr>
                                                             <td class="${positionClass}">${result.position}</td>
-                                                            <td><strong>${result.driver.name}</strong></td>
-                                                            <td>${result.team.name}</td>
-                                                            <td>${result.points}</td>
-                                                            <td>${result.time || result.status || 'N/A'}</td>
+                                                            <td class="col-driver"><strong>${result.driver.name}</strong></td>
+                                                            <td class="col-team">${result.team.name}</td>
+                                                            <td class="col-points">${result.points}</td>
+                                                            <td class="${statusClass}">${result.time || result.status || 'N/A'}</td>
                                                         </tr>
                                                     `;
                                                 }).join('')}
@@ -522,6 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 `;
                                 
                                 document.body.appendChild(resultsModal);
+                                
+                                // Melhorar a aparência da tabela de resultados
+                                enhanceTableAppearance();
                                 
                                 // Fechar modal de resultados
                                 resultsModal.querySelector('.close').addEventListener('click', () => {
@@ -940,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para melhorar o posicionamento das tabelas
     const enhanceTableAppearance = () => {
         // Destacar a linha da tabela quando o usuário passar o mouse
-        document.querySelectorAll('.standings-table tbody tr').forEach((row, index) => {
+        document.querySelectorAll('.standings-table tbody tr, .results-table tbody tr').forEach((row, index) => {
             row.addEventListener('mouseenter', () => {
                 row.style.backgroundColor = 'rgba(0, 0, 0, 0.03)';
                 
@@ -970,6 +976,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     posCell.style.fontWeight = '';
                 }
             });
+        });
+        
+        // Aplicar estilos adicionais às tabelas de resultados
+        document.querySelectorAll('.results-table').forEach(table => {
+            // Verificar se é uma tabela de resultados aberta recentemente
+            if (!table.classList.contains('enhanced')) {
+                table.classList.add('enhanced');
+                
+                // Adicionar tooltip para status longos
+                table.querySelectorAll('.col-status').forEach(cell => {
+                    if (cell.textContent.length > 15) {
+                        cell.setAttribute('title', cell.textContent);
+                        cell.style.cursor = 'help';
+                    }
+                });
+                
+                // Adicionar destaque para pontos importantes
+                table.querySelectorAll('.col-points').forEach(cell => {
+                    const points = parseInt(cell.textContent);
+                    if (points >= 15) {
+                        cell.style.fontWeight = '700';
+                    }
+                });
+            }
         });
     };
 

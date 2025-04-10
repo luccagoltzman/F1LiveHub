@@ -4,6 +4,7 @@
     --primary-hover: #c00500;
     --primary-light: #ff6b66;
     --primary-dark: #990400;
+    --primary-color-rgb: 225, 6, 0;
     --secondary-color: #15151e;
     --secondary-light: #2a2a3c;
     --secondary-dark: #0b0b10;
@@ -855,6 +856,7 @@ main {
     z-index: 10;
     border: none;
     white-space: nowrap;
+    color: white;
 }
 
 .standings-table tbody tr {
@@ -2075,241 +2077,239 @@ footer p {
 /* Tabelas de resultados */
 .results-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: var(--card-background);
-    border-radius: var(--border-radius);
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-bg);
+    transition: all 0.3s ease;
+    table-layout: fixed;
 }
 
-.results-table th,
-.results-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+.results-table thead tr {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    width: 100%;
 }
 
 .results-table th {
-    background-color: var(--secondary-color);
-    color: white;
-    font-weight: 600;
+    padding: 16px 10px;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     font-size: 0.85rem;
-    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border: none;
+    white-space: nowrap;
+    color: white;
 }
 
-.results-table tr:hover {
+.results-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0;
+    animation: fadeInRow 0.6s ease forwards;
+    position: relative;
+    z-index: 1;
+}
+
+.results-table tbody tr::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--primary-color);
+    opacity: 0.1;
+    transition: width 0.3s ease;
+    z-index: -1;
+}
+
+.results-table tbody tr:hover::before {
+    width: 100%;
+}
+
+.results-table tbody tr:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Defasagem na animação para cada linha */
+.results-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.results-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.results-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.results-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.results-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.results-table tbody tr:nth-child(6) { animation-delay: 0.3s; }
+.results-table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+.results-table tbody tr:nth-child(8) { animation-delay: 0.4s; }
+.results-table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+.results-table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+.results-table tbody tr:nth-child(11) { animation-delay: 0.55s; }
+.results-table tbody tr:nth-child(12) { animation-delay: 0.6s; }
+.results-table tbody tr:nth-child(13) { animation-delay: 0.65s; }
+.results-table tbody tr:nth-child(14) { animation-delay: 0.7s; }
+.results-table tbody tr:nth-child(15) { animation-delay: 0.75s; }
+.results-table tbody tr:nth-child(16) { animation-delay: 0.8s; }
+.results-table tbody tr:nth-child(17) { animation-delay: 0.85s; }
+.results-table tbody tr:nth-child(18) { animation-delay: 0.9s; }
+.results-table tbody tr:nth-child(19) { animation-delay: 0.95s; }
+.results-table tbody tr:nth-child(20) { animation-delay: 1s; }
+
+.results-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.results-table td {
+    padding: 14px 10px;
+    vertical-align: middle;
+    transition: all 0.2s ease;
+}
+
+/* Zebrado para melhor leitura */
+.results-table tbody tr:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.02);
 }
 
-.results-table tr:last-child td {
-    border-bottom: none;
+/* Destaques para posições na tabela de resultados - visual melhorado */
+.results-table tbody tr:nth-child(1) td:first-child {
+    color: #ffd700; /* ouro */
+    font-weight: 800;
+    font-size: 1.1rem;
+    position: relative;
+}
+
+.results-table tbody tr:nth-child(1) td:first-child::before {
+    content: '🏆';
+    font-size: 1em;
+    margin-right: 5px;
+}
+
+.results-table tbody tr:nth-child(2) td:first-child {
+    color: #c0c0c0; /* prata */
+    font-weight: 700;
+    font-size: 1.05rem;
+    position: relative;
+}
+
+.results-table tbody tr:nth-child(2) td:first-child::before {
+    content: '🥈';
+    font-size: 0.9em;
+    margin-right: 5px;
+}
+
+.results-table tbody tr:nth-child(3) td:first-child {
+    color: #cd7f32; /* bronze */
+    font-weight: 700;
+    font-size: 1rem;
+    position: relative;
+}
+
+.results-table tbody tr:nth-child(3) td:first-child::before {
+    content: '🥉';
+    font-size: 0.9em;
+    margin-right: 5px;
+}
+
+/* Alinhamento de cabeçalhos na tabela de resultados */
+.results-table th.col-position {
+    text-align: center;
+    width: 60px;
+}
+
+.results-table th.col-driver {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.results-table th.col-team {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.results-table th.col-time,
+.results-table th.col-points,
+.results-table th.col-laps,
+.results-table th.col-status {
+    text-align: center;
+    width: 100px;
+}
+
+/* Alinhamento de células de dados na tabela de resultados */
+.results-table td.col-position {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 700;
+}
+
+.results-table td.col-driver {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: 600;
+}
+
+.results-table td.col-team {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: 600;
+}
+
+.results-table td.col-time,
+.results-table td.col-points,
+.results-table td.col-laps,
+.results-table td.col-status {
+    text-align: center;
+    font-weight: 600;
+}
+
+.results-table td.col-points {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.results-table td.col-status.retired {
+    color: #e74c3c;
 }
 
 /* Responsividade para a tabela de resultados */
 @media (max-width: 768px) {
     .results-table {
+        border-radius: 8px;
+        margin: 15px 0;
         display: block;
         overflow-x: auto;
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
     }
     
-    .results-table th,
+    .results-table th, 
     .results-table td {
-        padding: 10px;
+        padding: 12px 10px;
         font-size: 0.9rem;
     }
-}
-
-/* Destaques para posições na tabela de resultados */
-.position-gold {
-    color: #FFD700;
-    font-weight: 800;
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
-    position: relative;
-}
-
-.position-gold::before {
-    content: "🏆";
-    position: absolute;
-    font-size: 8px;
-    left: 0;
-    top: 0;
-}
-
-.position-silver {
-    color: #C0C0C0;
-    font-weight: 700;
-}
-
-.position-bronze {
-    color: #CD7F32;
-    font-weight: 700;
-}
-
-/* Melhorias finais para os cards de corrida */
-.race-card {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto 1fr auto;
-    grid-template-areas:
-        "round info date"
-        "round info date"
-        "button button button";
-    gap: 15px;
-    padding: 25px;
-}
-
-.race-round {
-    grid-area: round;
-}
-
-.race-info {
-    grid-area: info;
-}
-
-.race-date {
-    grid-area: date;
-    justify-self: end;
-}
-
-.view-events-btn {
-    grid-area: button;
-    margin-top: 10px;
-}
-
-.event-count {
-    display: inline-block;
-    background-color: var(--primary-light);
-    color: white;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    margin-top: 8px;
-}
-
-@media (max-width: 768px) {
-    .race-card {
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto auto auto;
-        grid-template-areas:
-            "round info"
-            "date date"
-            "button button";
-        padding: 20px;
+    
+    .results-table::-webkit-scrollbar {
+        height: 4px;
     }
     
-    .race-date {
-        justify-self: start;
-        margin-top: 10px;
+    .results-table::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
     }
-}
-
-/* Loading */
-.loading {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.2rem;
-    color: var(--text-muted);
-    position: relative;
-}
-
-.loading::after {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 20px auto 0;
-    border-radius: 50%;
-    border: 4px solid var(--primary-color);
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+    
+    .results-table::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
     }
-}
-
-.standings-table tbody tr td.col-position {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-/* Corrigir alinhamento para todos os td na tabela */
-.standings-table td.col-position {
-    text-align: center;
-}
-
-.standings-table td.col-driver, 
-.standings-table th.col-driver {
-    text-align: left;
-    padding-left: 20px;
-}
-
-.standings-table td.col-team, 
-.standings-table th.col-team {
-    text-align: left;
-    padding-left: 20px;
-}
-
-.standings-table td.col-points, 
-.standings-table th.col-points {
-    text-align: center;
-}
-
-.standings-table td.col-wins, 
-.standings-table th.col-wins {
-    text-align: center;
-}
-
-/* Melhorar espaçamento geral da tabela */
-.standings-table th {
-    padding: 16px 10px;
-}
-
-.standings-table td {
-    padding: 14px 10px;
-}
-
-/* Estilo para as três primeiras posições */
-.standings-table tbody tr:nth-child(1) td.col-position {
-    color: #ffd700; /* ouro */
-    font-weight: 800;
-    font-size: 1.1rem;
-}
-
-.standings-table tbody tr:nth-child(1) td.col-position::before {
-    content: '🏆';
-    font-size: 1em;
-    margin-right: 2px;
-}
-
-.standings-table tbody tr:nth-child(2) td.col-position {
-    color: #c0c0c0; /* prata */
-    font-weight: 700;
-    font-size: 1.05rem;
-}
-
-.standings-table tbody tr:nth-child(2) td.col-position::before {
-    content: '🥈';
-    font-size: 0.9em;
-    margin-right: 2px;
-}
-
-.standings-table tbody tr:nth-child(3) td.col-position {
-    color: #cd7f32; /* bronze */
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.standings-table tbody tr:nth-child(3) td.col-position::before {
-    content: '🥉';
-    font-size: 0.9em;
-    margin-right: 2px;
 } 
