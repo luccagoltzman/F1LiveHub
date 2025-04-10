@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const driverGrid = document.querySelector('.drivers-grid');
     const teamsGrid = document.querySelector('.teams-grid');
     const racesList = document.querySelector('.races-list');
-    const driversTable = document.querySelector('.drivers-table tbody');
-    const constructorsTable = document.querySelector('.constructors-table tbody');
+    const driversTable = document.querySelector('#driver-standings table tbody');
+    const constructorsTable = document.querySelector('#constructor-standings table tbody');
     const quickAccessLinks = document.querySelectorAll('.quick-access .btn');
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const selectedSeason = currentSeasonSelect.value;
             // Carregar classificação de pilotos
-            document.querySelector('#driver-standings .loading').style.display = 'block';
+            document.querySelector('#driver-standings .loading-table').style.display = 'flex';
             driversTable.innerHTML = '';
             
             const driverStandings = await F1API.getCurrentDriverStandings(selectedSeason);
@@ -582,10 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 driversTable.innerHTML = '<tr><td colspan="5">Nenhum dado de classificação disponível.</td></tr>';
             }
             
-            document.querySelector('#driver-standings .loading').style.display = 'none';
+            document.querySelector('#driver-standings .loading-table').style.display = 'none';
             
             // Carregar classificação de construtores
-            document.querySelector('#constructor-standings .loading').style.display = 'block';
+            document.querySelector('#constructor-standings .loading-table').style.display = 'flex';
             constructorsTable.innerHTML = '';
             
             const constructorStandings = await F1API.getCurrentConstructorStandings(selectedSeason);
@@ -606,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 constructorsTable.innerHTML = '<tr><td colspan="4">Nenhum dado de classificação disponível.</td></tr>';
             }
             
-            document.querySelector('#constructor-standings .loading').style.display = 'none';
+            document.querySelector('#constructor-standings .loading-table').style.display = 'none';
         } catch (error) {
             showError('Erro ao carregar as classificações. Por favor, tente novamente.', document.querySelector('#standings'));
         }
@@ -781,6 +781,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+
+            // Adicionar interatividade às tabelas após carregamento
+            setTimeout(() => {
+                enhanceTableAppearance();
+            }, 300);
         } catch (error) {
             historyContent.innerHTML = '<p class="error-message">Erro ao carregar dados da temporada.</p>';
         }

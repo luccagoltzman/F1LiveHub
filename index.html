@@ -127,32 +127,36 @@
                 </div>
                 <div class="tab-content">
                     <div id="driver-standings" class="tab-pane active">
-                        <div class="loading">Carregando classificação de pilotos...</div>
-                        <table class="standings-table drivers-table">
+                        <div class="loading-table" style="display:none;"></div>
+                        <table class="standings-table">
                             <thead>
                                 <tr>
                                     <th class="col-position">Pos</th>
                                     <th class="col-driver">Piloto</th>
-                                    <th class="col-nationality hide-on-mobile">Equipe</th>
-                                    <th class="col-team hide-on-mobile">Pontos</th>
-                                    <th class="col-points">Vitórias</th>
+                                    <th class="col-team hide-on-mobile">Equipe</th>
+                                    <th class="col-points">Pontos</th>
+                                    <th class="col-wins hide-on-mobile">Vitórias</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                <!-- Conteúdo carregado dinamicamente -->
+                            </tbody>
                         </table>
                     </div>
                     <div id="constructor-standings" class="tab-pane">
-                        <div class="loading">Carregando classificação de construtores...</div>
-                        <table class="standings-table constructors-table">
+                        <div class="loading-table" style="display:none;"></div>
+                        <table class="standings-table">
                             <thead>
                                 <tr>
                                     <th class="col-position">Pos</th>
                                     <th class="col-team">Equipe</th>
-                                    <th class="col-nationality hide-on-mobile">Nacionalidade</th>
                                     <th class="col-points">Pontos</th>
+                                    <th class="col-wins hide-on-mobile">Vitórias</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                <!-- Conteúdo carregado dinamicamente -->
+                            </tbody>
                         </table>
                     </div>
                 </div>

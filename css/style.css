@@ -823,315 +823,215 @@ main {
     }
 }
 
+/* Tabela de classificação moderna */
 .standings-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 1rem 0 2.5rem;
-    background-color: var(--card-background);
-    border-radius: var(--border-radius);
+    margin: 20px 0;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--card-shadow);
-    position: relative;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-bg);
+    transition: all 0.3s ease;
+    table-layout: fixed;
 }
 
-.standings-table th,
-.standings-table td {
-    padding: 1.25rem 1rem;
-    text-align: left;
-    vertical-align: middle;
+.standings-table thead tr {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    width: 100%;
 }
 
 .standings-table th {
-    background-color: var(--secondary-color);
-    color: white;
-    font-weight: 600;
+    padding: 16px 10px;
+    font-weight: 700;
+    text-align: left;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     font-size: 0.85rem;
-    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border: none;
+    white-space: nowrap;
 }
 
-.standings-table tr {
-    background-color: var(--card-bg);
-    transition: all 0.2s ease;
+.standings-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0;
+    animation: fadeInRow 0.6s ease forwards;
+    position: relative;
+    z-index: 1;
 }
 
-.standings-table tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+@keyframes fadeInRow {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.standings-table tr:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.02);
+.standings-table tbody tr::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--primary-color);
+    opacity: 0.1;
+    transition: width 0.3s ease;
+    z-index: -1;
 }
 
-.standings-table tr:last-child td {
+.standings-table tbody tr:hover::before {
+    width: 100%;
+}
+
+.standings-table tbody tr:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Defasagem na animação para cada linha */
+.standings-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.standings-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.standings-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.standings-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.standings-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.standings-table tbody tr:nth-child(6) { animation-delay: 0.3s; }
+.standings-table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+.standings-table tbody tr:nth-child(8) { animation-delay: 0.4s; }
+.standings-table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+.standings-table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+.standings-table tbody tr:nth-child(11) { animation-delay: 0.55s; }
+.standings-table tbody tr:nth-child(12) { animation-delay: 0.6s; }
+.standings-table tbody tr:nth-child(13) { animation-delay: 0.65s; }
+.standings-table tbody tr:nth-child(14) { animation-delay: 0.7s; }
+.standings-table tbody tr:nth-child(15) { animation-delay: 0.75s; }
+.standings-table tbody tr:nth-child(16) { animation-delay: 0.8s; }
+.standings-table tbody tr:nth-child(17) { animation-delay: 0.85s; }
+.standings-table tbody tr:nth-child(18) { animation-delay: 0.9s; }
+.standings-table tbody tr:nth-child(19) { animation-delay: 0.95s; }
+.standings-table tbody tr:nth-child(20) { animation-delay: 1s; }
+
+.standings-table tbody tr:last-child {
     border-bottom: none;
 }
 
 .standings-table td {
-    border-bottom: 1px solid var(--border-color);
+    padding: 14px 10px;
+    vertical-align: middle;
+    transition: all 0.2s ease;
 }
 
-/* Colunas responsivas */
-@media (max-width: 768px) {
-    .standings-table {
-        display: table;
-        width: 100%;
-    }
-    
-    .hide-on-mobile {
-        display: none;
-    }
-    
-    .standings-table th.col-position,
-    .standings-table td.col-position {
-        width: 50px;
-        text-align: center;
-    }
-    
-    .standings-table th.col-driver,
-    .standings-table td.col-driver,
-    .standings-table th.col-team,
-    .standings-table td.col-team {
-        width: auto;
-    }
-    
-    .standings-table th.col-points,
-    .standings-table td.col-points {
-        width: 80px;
-        text-align: right;
-    }
-    
-    /* Adicionar um pequeno indicador para a posição */
-    .standings-table td.col-position {
-        position: relative;
-    }
-    
-    .standings-table td.col-position:before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background-color: var(--primary-color);
-    }
-
-    .drivers-grid,
-    .teams-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .hero h2 {
-        font-size: 2rem;
-    }
-    
-    .race-card {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .race-date {
-        text-align: left;
-        margin-top: 15px;
-    }
-
-    .page-header {
-        flex-direction: column;
-    }
-
-    .search-box {
-        margin-top: 15px;
-        width: 100%;
-    }
-
-    .season-selector {
-        width: 100%;
-        margin-top: 15px;
-    }
-
-    .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 1.2rem;
-        left: 1.2rem;
-        z-index: 1002;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 6px;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .menu-toggle:hover {
-        background: var(--primary-hover);
-    }
-    
-    nav {
-        position: fixed;
-        top: 0;
-        left: -300px;
-        width: 300px;
-        height: 100vh;
-        background-color: var(--secondary-color);
-        padding: 5rem 1.5rem 1.5rem;
-        transition: transform 0.3s ease;
-        z-index: 1001;
-        flex-direction: column;
-        align-items: flex-start;
-        overflow-y: auto;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    }
-    
-    nav.active {
-        transform: translateX(300px);
-    }
-    
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-        gap: 0.7rem;
-    }
-    
-    nav li {
-        width: 100%;
-    }
-    
-    nav a {
-        display: block;
-        padding: 1rem;
-        width: 100%;
-        text-align: left;
-        border-radius: var(--border-radius);
-    }
-    
-    .season-controls {
-        width: 100%;
-        margin: 1.5rem 0;
-        justify-content: center;
-    }
-    
-    #current-season-select {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    .theme-toggle {
-        margin: 1rem 0;
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 300px;
-        width: calc(100% - 300px);
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        backdrop-filter: blur(3px);
-    }
-    
-    .overlay.active {
-        display: block;
-        opacity: 1;
-    }
-    
-    nav:not(.active) + .overlay.active {
-        left: 0;
-        width: 100%;
-    }
+/* Alinhamento de cabeçalhos */
+.standings-table th.col-position {
+    text-align: center;
+    width: 60px;
 }
 
-@media (max-width: 480px) {
-    .hero h2 {
-        font-size: 1.7rem;
-    }
-    
-    .race-card {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .race-info {
-        margin: 15px 0;
-        width: 100%;
-    }
-    
-    .race-date {
-        text-align: left;
-        padding-left: 0;
-        width: 100%;
-    }
-    
-    .standings-table th,
-    .standings-table td {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .standings-table th.col-position,
-    .standings-table td.col-position {
-        width: 40px;
-    }
-    
-    .standings-table th.col-points,
-    .standings-table td.col-points {
-        width: 60px;
-    }
-    
-    .driver-card,
-    .team-card {
-        padding: 1rem;
-    }
+.standings-table th.col-driver {
+    text-align: left;
+    padding-left: 20px;
 }
 
-@media (max-width: 320px) {
-    .logo h1 {
-        font-size: 1.4rem;
-    }
-    
-    nav a {
-        padding: 0.8rem;
-        font-size: 0.9rem;
-    }
-    
-    .standings-table th,
-    .standings-table td {
-        padding: 0.5rem 0.4rem;
-        font-size: 0.8rem;
-    }
-    
-    .tab-btn {
-        padding: 10px;
-        font-size: 0.8rem;
-    }
+.standings-table th.col-team {
+    text-align: left;
+    padding-left: 20px;
 }
 
-/* Imprimir as colunas corretamente na classificação */
-.standings-table th.col-position,
+.standings-table th.col-points {
+    text-align: center;
+    width: 100px;
+}
+
+.standings-table th.col-wins {
+    text-align: center;
+    width: 100px;
+}
+
+/* Alinhamento de células de dados */
 .standings-table td.col-position {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 700;
+}
+
+.standings-table td.col-driver {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: 600;
+}
+
+.standings-table td.col-team {
+    text-align: left;
+    padding-left: 20px;
+    font-weight: 600;
+}
+
+.standings-table td.col-points {
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.standings-table td.col-wins {
     text-align: center;
 }
 
-.standings-table th.col-points,
-.standings-table td.col-points {
-    text-align: right;
+/* Zebrado para melhor leitura */
+.standings-table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
-.standings-table th.col-driver,
-.standings-table td.col-driver,
-.standings-table th.col-team,
-.standings-table td.col-team {
-    text-align: left;
+/* Responsividade */
+@media (max-width: 768px) {
+    .standings-table {
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+    
+    .standings-table th, .standings-table td {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .standings-table th {
+        font-size: 0.8rem;
+    }
+    
+    .standings-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .standings-table::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .standings-table::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+    }
+    
+    .standings-table::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
 }
 
 /* Página de Histórico */
@@ -1194,30 +1094,62 @@ main {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Loading */
-.loading {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.2rem;
-    color: var(--text-muted);
+/* Loading animado para tabelas */
+.loading-table {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    width: 100%;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     position: relative;
+    overflow: hidden;
 }
 
-.loading::after {
+.loading-table::before {
     content: '';
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 20px auto 0;
-    border-radius: 50%;
-    border: 4px solid var(--primary-color);
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right, 
+        transparent, 
+        var(--primary-color), 
+        transparent
+    );
+    animation: loading-sweep 1.5s infinite ease-in-out;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+.loading-table::after {
+    content: 'Carregando classificação...';
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    position: relative;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes loading-sweep {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
     }
 }
 
@@ -2273,4 +2205,111 @@ footer p {
         justify-self: start;
         margin-top: 10px;
     }
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 20px auto 0;
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.standings-table tbody tr td.col-position {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Corrigir alinhamento para todos os td na tabela */
+.standings-table td.col-position {
+    text-align: center;
+}
+
+.standings-table td.col-driver, 
+.standings-table th.col-driver {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.standings-table td.col-team, 
+.standings-table th.col-team {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.standings-table td.col-points, 
+.standings-table th.col-points {
+    text-align: center;
+}
+
+.standings-table td.col-wins, 
+.standings-table th.col-wins {
+    text-align: center;
+}
+
+/* Melhorar espaçamento geral da tabela */
+.standings-table th {
+    padding: 16px 10px;
+}
+
+.standings-table td {
+    padding: 14px 10px;
+}
+
+/* Estilo para as três primeiras posições */
+.standings-table tbody tr:nth-child(1) td.col-position {
+    color: #ffd700; /* ouro */
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.standings-table tbody tr:nth-child(1) td.col-position::before {
+    content: '🏆';
+    font-size: 1em;
+    margin-right: 2px;
+}
+
+.standings-table tbody tr:nth-child(2) td.col-position {
+    color: #c0c0c0; /* prata */
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.standings-table tbody tr:nth-child(2) td.col-position::before {
+    content: '🥈';
+    font-size: 0.9em;
+    margin-right: 2px;
+}
+
+.standings-table tbody tr:nth-child(3) td.col-position {
+    color: #cd7f32; /* bronze */
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.standings-table tbody tr:nth-child(3) td.col-position::before {
+    content: '🥉';
+    font-size: 0.9em;
+    margin-right: 2px;
 } 
