@@ -143,15 +143,27 @@ document.addEventListener('DOMContentLoaded', () => {
         e.currentTarget.classList.add('active');
         document.getElementById(targetPage).classList.add('active');
         
-        // Carregar dados se necessário
-        if (targetPage === 'drivers' && driverGrid.children.length <= 1) {
+        // Sempre carregar os dados quando navegar para uma página, independente do dispositivo
+        if (targetPage === 'drivers') {
             loadDrivers();
-        } else if (targetPage === 'teams' && teamsGrid.children.length <= 1) {
+        } else if (targetPage === 'teams') {
             loadTeams();
-        } else if (targetPage === 'races' && racesList.children.length <= 1) {
+        } else if (targetPage === 'races') {
             loadRaces();
-        } else if (targetPage === 'standings' && driversTable.children.length === 0) {
+        } else if (targetPage === 'standings') {
             loadStandings();
+        }
+        
+        // Se for um dispositivo móvel, verificar novamente após um curto período
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                // Verificar novamente se os dados foram carregados corretamente
+                if (targetPage === 'drivers' && !document.querySelector('.drivers-grid .driver-card')) {
+                    loadDrivers();
+                } else if (targetPage === 'teams' && !document.querySelector('.teams-grid .team-card')) {
+                    loadTeams();
+                }
+            }, 500);
         }
     };
 
@@ -215,38 +227,80 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedSeason = currentSeasonSelect.value;
             driverGrid.innerHTML = '<div class="loading">Carregando pilotos...</div>';
             
-            const drivers = await F1API.getCurrentDrivers(selectedSeason);
+            let retryCount = 0;
+            const maxRetries = 3;
+            let success = false;
             
-            if (drivers.length === 0) {
-                driverGrid.innerHTML = '<p>Nenhum piloto encontrado.</p>';
-                return;
+            while (!success && retryCount < maxRetries) {
+                try {
+                    const drivers = await F1API.getCurrentDrivers(selectedSeason);
+                    
+                    if (drivers.length === 0) {
+                        driverGrid.innerHTML = '<p>Nenhum piloto encontrado.</p>';
+                        return;
+                    }
+                    
+                    driverGrid.innerHTML = '';
+                    
+                    drivers.forEach(standing => {
+                        const driver = standing.driver;
+                        const team = standing.team;
+                        const driverCard = document.createElement('div');
+                        driverCard.className = 'driver-card';
+                        driverCard.innerHTML = `
+                            <div class="driver-header">
+                                <h3>${driver.name}</h3>
+                                <div class="driver-number">${driver.number}</div>
+                            </div>
+                            <div class="driver-info">
+                                <img src="${driver.image}" alt="${driver.name}" style="width: 100px; height: auto; margin-bottom: 10px;">
+                                <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                                <p><strong>Equipe:</strong> ${team.name}</p>
+                                <p><strong>Pontos:</strong> ${standing.points}</p>
+                                <p><strong>Vitórias:</strong> ${standing.wins}</p>
+                                <p><strong>Sigla:</strong> ${driver.abbr}</p>
+                            </div>
+                        `;
+                        driverGrid.appendChild(driverCard);
+                    });
+                    
+                    // Marcar como sucesso para sair do loop
+                    success = true;
+                    
+                    // Notificação de sucesso para dispositivos móveis
+                    if (window.innerWidth <= 768) {
+                        notifications.add(
+                            'Pilotos Carregados',
+                            'Os dados dos pilotos foram carregados com sucesso!',
+                            'success'
+                        );
+                    }
+                } catch (retryError) {
+                    console.error(`Tentativa ${retryCount + 1} falhou: ${retryError.message}`);
+                    retryCount++;
+                    
+                    // Esperar antes de tentar novamente (tempo exponencial)
+                    if (retryCount < maxRetries) {
+                        const waitTime = 1000 * Math.pow(2, retryCount);
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    }
+                }
             }
             
-            driverGrid.innerHTML = '';
-            
-            drivers.forEach(standing => {
-                const driver = standing.driver;
-                const team = standing.team;
-                const driverCard = document.createElement('div');
-                driverCard.className = 'driver-card';
-                driverCard.innerHTML = `
-                    <div class="driver-header">
-                        <h3>${driver.name}</h3>
-                        <div class="driver-number">${driver.number}</div>
-                    </div>
-                    <div class="driver-info">
-                        <img src="${driver.image}" alt="${driver.name}" style="width: 100px; height: auto; margin-bottom: 10px;">
-                        <p><strong>Posição Atual:</strong> ${standing.position}º</p>
-                        <p><strong>Equipe:</strong> ${team.name}</p>
-                        <p><strong>Pontos:</strong> ${standing.points}</p>
-                        <p><strong>Vitórias:</strong> ${standing.wins}</p>
-                        <p><strong>Sigla:</strong> ${driver.abbr}</p>
-                    </div>
-                `;
-                driverGrid.appendChild(driverCard);
-            });
+            // Se todas as tentativas falharam, exibir o erro
+            if (!success) {
+                throw new Error('Erro após várias tentativas');
+            }
         } catch (error) {
+            console.error('Erro ao carregar pilotos:', error);
             showError('Erro ao carregar os pilotos. Por favor, tente novamente.', driverGrid);
+            
+            // Notificar o usuário sobre o erro
+            notifications.add(
+                'Erro ao Carregar Pilotos',
+                'Não foi possível carregar os dados. Tente novamente mais tarde.',
+                'error'
+            );
         }
     };
 
@@ -258,34 +312,76 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedSeason = currentSeasonSelect.value;
             teamsGrid.innerHTML = '<div class="loading">Carregando equipes...</div>';
             
-            const constructors = await F1API.getCurrentConstructors(selectedSeason);
+            let retryCount = 0;
+            const maxRetries = 3;
+            let success = false;
             
-            if (constructors.length === 0) {
-                teamsGrid.innerHTML = '<p>Nenhuma equipe encontrada.</p>';
-                return;
+            while (!success && retryCount < maxRetries) {
+                try {
+                    const constructors = await F1API.getCurrentConstructors(selectedSeason);
+                    
+                    if (constructors.length === 0) {
+                        teamsGrid.innerHTML = '<p>Nenhuma equipe encontrada.</p>';
+                        return;
+                    }
+                    
+                    teamsGrid.innerHTML = '';
+                    
+                    constructors.forEach(standing => {
+                        const team = standing.team;
+                        const teamCard = document.createElement('div');
+                        teamCard.className = 'team-card';
+                        teamCard.innerHTML = `
+                            <div class="team-header">
+                                <h3>${team.name}</h3>
+                            </div>
+                            <div class="team-info">
+                                <img src="${team.logo}" alt="${team.name}" style="width: 150px; height: auto; margin-bottom: 10px;">
+                                <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                                <p><strong>Pontos:</strong> ${standing.points}</p>
+                                <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
+                            </div>
+                        `;
+                        teamsGrid.appendChild(teamCard);
+                    });
+                    
+                    // Marcar como sucesso para sair do loop
+                    success = true;
+                    
+                    // Notificação de sucesso para dispositivos móveis
+                    if (window.innerWidth <= 768) {
+                        notifications.add(
+                            'Equipes Carregadas',
+                            'Os dados das equipes foram carregados com sucesso!',
+                            'success'
+                        );
+                    }
+                } catch (retryError) {
+                    console.error(`Tentativa ${retryCount + 1} falhou: ${retryError.message}`);
+                    retryCount++;
+                    
+                    // Esperar antes de tentar novamente (tempo exponencial)
+                    if (retryCount < maxRetries) {
+                        const waitTime = 1000 * Math.pow(2, retryCount);
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    }
+                }
             }
             
-            teamsGrid.innerHTML = '';
-            
-            constructors.forEach(standing => {
-                const team = standing.team;
-                const teamCard = document.createElement('div');
-                teamCard.className = 'team-card';
-                teamCard.innerHTML = `
-                    <div class="team-header">
-                        <h3>${team.name}</h3>
-                    </div>
-                    <div class="team-info">
-                        <img src="${team.logo}" alt="${team.name}" style="width: 150px; height: auto; margin-bottom: 10px;">
-                        <p><strong>Posição Atual:</strong> ${standing.position}º</p>
-                        <p><strong>Pontos:</strong> ${standing.points}</p>
-                        <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
-                    </div>
-                `;
-                teamsGrid.appendChild(teamCard);
-            });
+            // Se todas as tentativas falharam, exibir o erro
+            if (!success) {
+                throw new Error('Erro após várias tentativas');
+            }
         } catch (error) {
+            console.error('Erro ao carregar equipes:', error);
             showError('Erro ao carregar as equipes. Por favor, tente novamente.', teamsGrid);
+            
+            // Notificar o usuário sobre o erro
+            notifications.add(
+                'Erro ao Carregar Equipes',
+                'Não foi possível carregar os dados. Tente novamente mais tarde.',
+                'error'
+            );
         }
     };
 
@@ -1026,11 +1122,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /* Função para verificar e corrigir erros no carregamento de dados */
+    const checkAndFixDataLoading = () => {
+        // Verificar se as grids de pilotos e equipes estão vazias
+        const driverGridItems = document.querySelectorAll('.drivers-grid .driver-card');
+        const teamsGridItems = document.querySelectorAll('.teams-grid .team-card');
+        
+        // Se a página de pilotos estiver ativa e não houver cards de pilotos, recarregar
+        if (document.getElementById('drivers').classList.contains('active') && driverGridItems.length === 0) {
+            console.log('Recarregando dados de pilotos...');
+            loadDrivers();
+        }
+        
+        // Se a página de equipes estiver ativa e não houver cards de equipes, recarregar
+        if (document.getElementById('teams').classList.contains('active') && teamsGridItems.length === 0) {
+            console.log('Recarregando dados de equipes...');
+            loadTeams();
+        }
+    };
+
     // Executar funções de melhoria após o carregamento dos dados
     const enhanceUI = () => {
         setupIntersectionObserver();
         enhanceThemeToggle();
         setupLazyLoading();
+        
+        // Verificar e corrigir problemas de carregamento após 2 segundos
+        setTimeout(checkAndFixDataLoading, 2000);
+        
+        // Adicionar verificação também em mudanças de redimensionamento para mobile
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                setTimeout(checkAndFixDataLoading, 500);
+            }
+        });
         
         // Executar as melhorias específicas após carregamento do conteúdo
         const observer = new MutationObserver((mutations) => {
