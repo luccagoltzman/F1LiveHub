@@ -589,8 +589,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 <tr>
                                                     <th class="col-position" width="50">Pos</th>
                                                     <th class="col-driver">Piloto</th>
-                                                    <th class="col-team">Equipe</th>
-                                                    <th class="col-points" width="60">Pontos</th>
+                                                    <th class="col-team hide-on-mobile">Equipe</th>
+                                                    <th class="col-points hide-on-mobile" width="60">Pontos</th>
                                                     <th class="col-status">Tempo/Status</th>
                                                 </tr>
                                             </thead>
@@ -607,11 +607,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                                     
                                                     return `
                                                         <tr>
-                                                            <td class="${positionClass}">${result.position}</td>
-                                                            <td class="col-driver"><strong>${result.driver.name}</strong></td>
-                                                            <td class="col-team">${result.team.name}</td>
-                                                            <td class="col-points">${result.points}</td>
-                                                            <td class="${statusClass}">${result.time || result.status || 'N/A'}</td>
+                                                            <td class="${positionClass}" data-label="Pos">${result.position}</td>
+                                                            <td class="col-driver" data-label="Piloto"><strong>${result.driver.name}</strong></td>
+                                                            <td class="col-team hide-on-mobile" data-label="Equipe">${result.team.name}</td>
+                                                            <td class="col-points hide-on-mobile" data-label="Pontos">${result.points}</td>
+                                                            <td class="${statusClass}" data-label="Tempo/Status" data-status="${result.status || ''}">${result.time || result.status || 'N/A'}</td>
                                                         </tr>
                                                     `;
                                                 }).join('')}

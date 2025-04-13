@@ -2312,6 +2312,120 @@ footer p {
         background: var(--primary-color);
         border-radius: 10px;
     }
+    
+    /* Ocultar colunas específicas da tabela de resultados em dispositivos móveis */
+    .results-table .col-team,
+    .results-table .col-points {
+        display: none !important;
+    }
+    
+    /* Redefinir o estilo para as tabelas de resultados em mobile */
+    .results-table tbody tr {
+        display: table-row;
+        width: 100%;
+        padding: 0;
+        margin-bottom: 0;
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        animation: none;
+        border-left: none !important;
+        opacity: 1;
+    }
+    
+    .results-table td {
+        display: table-cell;
+        width: auto;
+        text-align: left;
+        padding: 8px 5px;
+        border-bottom: 1px solid var(--border-color-light);
+        position: relative;
+    }
+    
+    /* Restaurar estilos específicos para as células da tabela */
+    .results-table .col-position {
+        width: 40px;
+        min-width: 40px;
+        height: auto;
+        border-radius: 0;
+        background-color: transparent;
+        font-weight: inherit;
+        font-size: inherit;
+        color: inherit;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    /* Destaque para os três primeiros colocados */
+    .results-table tr:nth-child(1) .col-position {
+        font-weight: bold;
+        color: #ffd700;
+    }
+    
+    .results-table tr:nth-child(2) .col-position {
+        font-weight: bold;
+        color: #c0c0c0;
+    }
+    
+    .results-table tr:nth-child(3) .col-position {
+        font-weight: bold;
+        color: #cd7f32;
+    }
+    
+    /* Nome do piloto */
+    .results-table .col-driver {
+        font-size: 0.9rem;
+        line-height: 1.2;
+        text-align: left;
+        min-width: 120px;
+    }
+    
+    /* Tempo/Status */
+    .results-table .col-status {
+        text-align: right;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        min-width: 100px;
+    }
+    
+    /* Tempo/Status para pilotos que abandonaram */
+    .results-table .col-status[data-status*="Retired"],
+    .results-table .col-status[data-status*="DNF"],
+    .results-table .col-status[data-status*="DSQ"] {
+        color: #e74c3c;
+        font-style: italic;
+    }
+    
+    /* Remover os data-labels em visualização de tabela */
+    .results-table td::before {
+        display: none;
+    }
+    
+    /* Ajuste fino para alinhamento com o cabeçalho */
+    .results-table thead tr {
+        display: table-row;
+    }
+    
+    .results-table th {
+        display: table-cell;
+        text-align: left;
+        padding: 8px 5px;
+    }
+    
+    /* Garantir que as colunas ocultas não ocupem espaço */
+    .results-table th.hide-on-mobile,
+    .results-table td.hide-on-mobile {
+        display: none !important;
+    }
+    
+    /* Adicionar rolagem horizontal caso necessário */
+    .results-table {
+        width: 100%;
+        white-space: nowrap;
+        overflow-x: auto;
+        display: block;
+    }
 }
 
 /* Tela de Loading Inicial */
@@ -2498,6 +2612,7 @@ footer p {
 
 /* Media queries para tela de loading em dispositivos móveis */
 @media (max-width: 768px) {
+    /* Estilos para elementos de loading */
     .loading-logo {
         font-size: 3rem;
         margin-bottom: 1rem;
@@ -2522,36 +2637,218 @@ footer p {
         display: none; /* Ocultar botão de pular introdução em dispositivos móveis */
     }
     
-    /* Ajustar tamanho das explosões para telas menores */
-    .firework.flash {
-        transform-origin: center;
-    }
-
     /* Otimização de fogos de artifício para mobile */
     .fireworks-container {
-        opacity: 0.8; /* Reduzir opacidade geral */
+        opacity: 0.8;
     }
     
-    /* Reduzir a quantidade de partículas para melhorar o desempenho */
     .firework {
         opacity: 0.7;
-        filter: blur(0.8px); /* Aumentar o desfoque para economizar recursos */
+        filter: blur(0.8px);
     }
     
-    /* Simplificar os pseudo-elementos para melhorar desempenho */
     .firework::before,
     .firework::after {
-        display: none; /* Remover efeitos extras em dispositivos móveis */
+        display: none;
     }
     
-    /* Definir um tamanho máximo menor para explosões em mobile */
     .firework.flash {
         animation: flashPulseMobile 0.6s ease-out forwards;
+        transform-origin: center;
     }
     
     @keyframes flashPulseMobile {
         0% { transform: scale(1); opacity: 0.8; }
         40% { transform: scale(2.5); opacity: 0.6; }
         100% { transform: scale(4); opacity: 0; }
+    }
+    
+    /* Ajustes para tabelas em dispositivos móveis */
+    /* Garantir que elementos ocultos não ocupem espaço */
+    .hide-on-mobile {
+        display: none !important;
+    }
+    
+    /* Estilos para tabelas de classificação */
+    .standings-table {
+        border-radius: 8px;
+        margin: 15px 0;
+        width: 100%;
+        white-space: nowrap;
+        overflow-x: auto;
+        display: block;
+        max-width: 100%;
+        table-layout: fixed;
+    }
+    
+    .standings-table th, 
+    .standings-table td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+    }
+    
+    .standings-table::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .standings-table::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+    }
+    
+    .standings-table::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
+    
+    .standings-table thead, 
+    .standings-table tbody {
+        width: 100%;
+    }
+    
+    .standings-table tr {
+        width: 100%;
+        display: table;
+        table-layout: fixed;
+    }
+    
+    .standings-table tbody tr:hover::before {
+        width: 100%;
+    }
+    
+    .standings-table tbody tr::before {
+        left: 0;
+        width: 100%;
+    }
+    
+    /* Ajuste na distribuição das colunas visíveis para ocupar 100% do espaço */
+    .standings-table .col-position {
+        width: 15%;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    .standings-table .col-driver,
+    .standings-table .col-team {
+        width: 60%;
+        min-width: 120px;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .standings-table .col-points {
+        width: 25%;
+        min-width: 70px;
+        text-align: right;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    /* Garantir que os backgrounds das linhas pares e ímpares ocupem toda a largura */
+    .standings-table tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+        width: 100%;
+    }
+    
+    .standings-table tbody tr:hover {
+        background-color: rgba(var(--primary-color-rgb), 0.05);
+        width: 100%;
+    }
+    
+    /* Estilos para tabelas de resultados */
+    .results-table {
+        border-radius: 8px;
+        margin: 15px 0;
+        width: 100%;
+        white-space: nowrap;
+        overflow-x: auto;
+        display: block;
+        max-width: 100%;
+        table-layout: fixed;
+    }
+    
+    .results-table th, 
+    .results-table td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+    }
+    
+    .results-table::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .results-table::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+    }
+    
+    .results-table::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
+    
+    .results-table thead, 
+    .results-table tbody {
+        width: 100%;
+    }
+    
+    .results-table tr {
+        width: 100%;
+        display: table;
+        table-layout: fixed;
+    }
+    
+    .results-table tbody tr:hover::before {
+        width: 100%;
+    }
+    
+    .results-table tbody tr::before {
+        left: 0;
+        width: 100%;
+    }
+    
+    /* Ocultar colunas específicas da tabela de resultados em dispositivos móveis */
+    .results-table .col-team,
+    .results-table .col-points {
+        display: none !important;
+    }
+    
+    /* Ajustes específicos para colunas de resultados */
+    .results-table .col-position {
+        width: 15%;
+        min-width: 40px;
+    }
+    
+    .results-table .col-driver {
+        width: 60%;
+        min-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .results-table .col-status {
+        width: 25%;
+        min-width: 100px;
+        text-align: right;
+    }
+    
+    /* Garantir que os backgrounds das linhas pares e ímpares ocupem toda a largura */
+    .results-table tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+        width: 100%;
+    }
+    
+    .results-table tbody tr:hover {
+        background-color: rgba(var(--primary-color-rgb), 0.05);
+        width: 100%;
+    }
+    
+    /* Tempo/Status para pilotos que abandonaram */
+    .results-table .col-status[data-status*="Retired"],
+    .results-table .col-status[data-status*="DNF"],
+    .results-table .col-status[data-status*="DSQ"] {
+        color: #e74c3c;
+        font-style: italic;
     }
 } 
