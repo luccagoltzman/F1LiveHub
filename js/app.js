@@ -55,11 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
             nav.classList.remove('active');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+            menuToggle.setAttribute('aria-expanded', 'false');
         } else {
             // Se o clique foi no botão do menu, alterna o estado
-            nav.classList.toggle('active');
+            const isActive = nav.classList.toggle('active');
             overlay.classList.toggle('active');
-            document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+            document.body.style.overflow = isActive ? 'hidden' : '';
+            menuToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
         }
     };
 
@@ -219,13 +221,102 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Armazenar dados originais para filtros
+    let allDriversData = [];
+    let allTeamsData = [];
+
+    /**
+     * Função debounce para otimizar buscas
+     * @param {Function} func - Função a ser executada
+     * @param {number} wait - Tempo de espera em ms
+     * @returns {Function} - Função com debounce aplicado
+     */
+    const debounce = (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    /**
+     * Ordenar e filtrar pilotos
+     */
+    const filterAndSortDrivers = () => {
+        const sortBy = document.getElementById('driver-sort')?.value || 'position';
+        const filterBy = document.getElementById('driver-filter')?.value || 'all';
+        
+        let filtered = [...allDriversData];
+        
+        // Aplicar filtro
+        if (filterBy !== 'all') {
+            filtered = filtered.filter(standing => standing.team.name === filterBy);
+        }
+        
+        // Aplicar ordenação
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'points':
+                    return b.points - a.points;
+                case 'wins':
+                    return (b.wins || 0) - (a.wins || 0);
+                case 'name':
+                    return a.driver.name.localeCompare(b.driver.name);
+                case 'position':
+                default:
+                    return a.position - b.position;
+            }
+        });
+        
+        return filtered;
+    };
+
+    /**
+     * Renderizar pilotos
+     */
+    const renderDrivers = (drivers) => {
+        driverGrid.innerHTML = '';
+        
+        if (drivers.length === 0) {
+            showEmptyState(driverGrid, 'fa-user-astronaut', 'Nenhum piloto encontrado', 'Não há pilotos que correspondam aos filtros selecionados.');
+            return;
+        }
+        
+        drivers.forEach(standing => {
+            const driver = standing.driver;
+            const team = standing.team;
+            const driverCard = document.createElement('div');
+            driverCard.className = 'driver-card';
+            driverCard.setAttribute('role', 'listitem');
+            driverCard.innerHTML = `
+                <div class="driver-header">
+                    <h3>${driver.name}</h3>
+                    <div class="driver-number">${driver.number || '?'}</div>
+                </div>
+                <div class="driver-info">
+                    <img src="${driver.image || ''}" alt="${driver.name}" loading="lazy" style="width: 100px; height: auto; margin-bottom: 10px;" onerror="this.style.display='none'">
+                    <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                    <p><strong>Equipe:</strong> ${team.name}</p>
+                    <p><strong>Pontos:</strong> ${standing.points}</p>
+                    <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
+                    ${driver.abbr ? `<p><strong>Sigla:</strong> ${driver.abbr}</p>` : ''}
+                </div>
+            `;
+            driverGrid.appendChild(driverCard);
+        });
+    };
+
     /**
      * Carregar os pilotos da temporada selecionada
      */
     const loadDrivers = async () => {
         try {
             const selectedSeason = currentSeasonSelect.value;
-            driverGrid.innerHTML = '<div class="loading">Carregando pilotos...</div>';
+            driverGrid.innerHTML = createSkeletonLoaders(6);
             
             let retryCount = 0;
             const maxRetries = 3;
@@ -236,33 +327,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     const drivers = await F1API.getCurrentDrivers(selectedSeason);
                     
                     if (drivers.length === 0) {
-                        driverGrid.innerHTML = '<p>Nenhum piloto encontrado.</p>';
+                        showEmptyState(driverGrid, 'fa-user-astronaut', 'Nenhum piloto encontrado', 'Não há pilotos disponíveis para esta temporada.');
                         return;
                     }
                     
-                    driverGrid.innerHTML = '';
+                    // Armazenar dados originais
+                    allDriversData = drivers;
                     
-                    drivers.forEach(standing => {
-                        const driver = standing.driver;
-                        const team = standing.team;
-                        const driverCard = document.createElement('div');
-                        driverCard.className = 'driver-card';
-                        driverCard.innerHTML = `
-                            <div class="driver-header">
-                                <h3>${driver.name}</h3>
-                                <div class="driver-number">${driver.number}</div>
-                            </div>
-                            <div class="driver-info">
-                                <img src="${driver.image}" alt="${driver.name}" style="width: 100px; height: auto; margin-bottom: 10px;">
-                                <p><strong>Posição Atual:</strong> ${standing.position}º</p>
-                                <p><strong>Equipe:</strong> ${team.name}</p>
-                                <p><strong>Pontos:</strong> ${standing.points}</p>
-                                <p><strong>Vitórias:</strong> ${standing.wins}</p>
-                                <p><strong>Sigla:</strong> ${driver.abbr}</p>
-                            </div>
-                        `;
-                        driverGrid.appendChild(driverCard);
-                    });
+                    // Popular filtro de equipes
+                    const teamFilter = document.getElementById('driver-filter');
+                    if (teamFilter) {
+                        const teams = [...new Set(drivers.map(d => d.team.name))].sort();
+                        teamFilter.innerHTML = '<option value="all">Todas as equipes</option>' + 
+                            teams.map(team => `<option value="${team}">${team}</option>`).join('');
+                    }
+                    
+                    // Renderizar pilotos
+                    renderDrivers(filterAndSortDrivers());
                     
                     // Marcar como sucesso para sair do loop
                     success = true;
@@ -305,12 +386,69 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
+     * Ordenar equipes
+     */
+    const filterAndSortTeams = () => {
+        const sortBy = document.getElementById('team-sort')?.value || 'position';
+        
+        let sorted = [...allTeamsData];
+        
+        // Aplicar ordenação
+        sorted.sort((a, b) => {
+            switch (sortBy) {
+                case 'points':
+                    return b.points - a.points;
+                case 'wins':
+                    return (b.wins || 0) - (a.wins || 0);
+                case 'name':
+                    return a.team.name.localeCompare(b.team.name);
+                case 'position':
+                default:
+                    return a.position - b.position;
+            }
+        });
+        
+        return sorted;
+    };
+
+    /**
+     * Renderizar equipes
+     */
+    const renderTeams = (teams) => {
+        teamsGrid.innerHTML = '';
+        
+        if (teams.length === 0) {
+            showEmptyState(teamsGrid, 'fa-car-side', 'Nenhuma equipe encontrada', 'Não há equipes disponíveis para esta temporada.');
+            return;
+        }
+        
+        teams.forEach(standing => {
+            const team = standing.team;
+            const teamCard = document.createElement('div');
+            teamCard.className = 'team-card';
+            teamCard.setAttribute('role', 'listitem');
+            teamCard.innerHTML = `
+                <div class="team-header">
+                    <h3>${team.name}</h3>
+                </div>
+                <div class="team-info">
+                    <img src="${team.logo || ''}" alt="${team.name}" loading="lazy" style="width: 150px; height: auto; margin-bottom: 10px;" onerror="this.style.display='none'">
+                    <p><strong>Posição Atual:</strong> ${standing.position}º</p>
+                    <p><strong>Pontos:</strong> ${standing.points}</p>
+                    <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
+                </div>
+            `;
+            teamsGrid.appendChild(teamCard);
+        });
+    };
+
+    /**
      * Carregar as equipes da temporada selecionada
      */
     const loadTeams = async () => {
         try {
             const selectedSeason = currentSeasonSelect.value;
-            teamsGrid.innerHTML = '<div class="loading">Carregando equipes...</div>';
+            teamsGrid.innerHTML = createSkeletonLoaders(6);
             
             let retryCount = 0;
             const maxRetries = 3;
@@ -321,29 +459,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const constructors = await F1API.getCurrentConstructors(selectedSeason);
                     
                     if (constructors.length === 0) {
-                        teamsGrid.innerHTML = '<p>Nenhuma equipe encontrada.</p>';
+                        showEmptyState(teamsGrid, 'fa-car-side', 'Nenhuma equipe encontrada', 'Não há equipes disponíveis para esta temporada.');
                         return;
                     }
                     
-                    teamsGrid.innerHTML = '';
+                    // Armazenar dados originais
+                    allTeamsData = constructors;
                     
-                    constructors.forEach(standing => {
-                        const team = standing.team;
-                        const teamCard = document.createElement('div');
-                        teamCard.className = 'team-card';
-                        teamCard.innerHTML = `
-                            <div class="team-header">
-                                <h3>${team.name}</h3>
-                            </div>
-                            <div class="team-info">
-                                <img src="${team.logo}" alt="${team.name}" style="width: 150px; height: auto; margin-bottom: 10px;">
-                                <p><strong>Posição Atual:</strong> ${standing.position}º</p>
-                                <p><strong>Pontos:</strong> ${standing.points}</p>
-                                <p><strong>Vitórias:</strong> ${standing.wins || 0}</p>
-                            </div>
-                        `;
-                        teamsGrid.appendChild(teamCard);
-                    });
+                    // Renderizar equipes
+                    renderTeams(filterAndSortTeams());
                     
                     // Marcar como sucesso para sair do loop
                     success = true;
@@ -728,6 +852,71 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(btn => {
         btn.addEventListener('click', handleTabClick);
     });
+
+    // Eventos para filtros e ordenação de pilotos
+    const driverSortSelect = document.getElementById('driver-sort');
+    const driverFilterSelect = document.getElementById('driver-filter');
+    
+    if (driverSortSelect) {
+        driverSortSelect.addEventListener('change', () => {
+            renderDrivers(filterAndSortDrivers());
+        });
+    }
+    
+    if (driverFilterSelect) {
+        driverFilterSelect.addEventListener('change', () => {
+            renderDrivers(filterAndSortDrivers());
+        });
+    }
+
+    // Busca de pilotos com debounce
+    const driverSearchInput = document.getElementById('driver-search');
+    if (driverSearchInput) {
+        const debouncedDriverSearch = debounce((query) => {
+            if (!query.trim()) {
+                renderDrivers(filterAndSortDrivers());
+                return;
+            }
+            
+            const filtered = allDriversData.filter(standing => 
+                standing.driver.name.toLowerCase().includes(query.toLowerCase()) ||
+                standing.team.name.toLowerCase().includes(query.toLowerCase())
+            );
+            renderDrivers(filtered);
+        }, 300);
+        
+        driverSearchInput.addEventListener('input', (e) => {
+            debouncedDriverSearch(e.target.value);
+        });
+    }
+
+    // Eventos para ordenação de equipes
+    const teamSortSelect = document.getElementById('team-sort');
+    if (teamSortSelect) {
+        teamSortSelect.addEventListener('change', () => {
+            renderTeams(filterAndSortTeams());
+        });
+    }
+
+    // Busca de equipes com debounce
+    const teamSearchInput = document.getElementById('team-search');
+    if (teamSearchInput) {
+        const debouncedTeamSearch = debounce((query) => {
+            if (!query.trim()) {
+                renderTeams(filterAndSortTeams());
+                return;
+            }
+            
+            const filtered = allTeamsData.filter(standing => 
+                standing.team.name.toLowerCase().includes(query.toLowerCase())
+            );
+            renderTeams(filtered);
+        }, 300);
+        
+        teamSearchInput.addEventListener('input', (e) => {
+            debouncedTeamSearch(e.target.value);
+        });
+    }
     
     // Carregar a página inicial com os dados de pilotos
     loadDrivers();
@@ -748,7 +937,41 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Realizar busca rápida
+     * Criar skeleton loader para cards
+     * @param {number} count - Número de skeletons
+     * @returns {string} - HTML dos skeletons
+     */
+    const createSkeletonLoaders = (count = 6) => {
+        return Array.from({ length: count }, () => `
+            <div class="skeleton-card skeleton" role="status" aria-label="Carregando">
+                <div class="skeleton-header skeleton"></div>
+                <div class="skeleton-image skeleton"></div>
+                <div class="skeleton-line skeleton"></div>
+                <div class="skeleton-line short skeleton"></div>
+                <div class="skeleton-line medium skeleton"></div>
+            </div>
+        `).join('');
+    };
+
+    /**
+     * Exibir estado vazio melhorado
+     * @param {HTMLElement} container - Container onde exibir
+     * @param {string} icon - Ícone Font Awesome
+     * @param {string} title - Título
+     * @param {string} message - Mensagem
+     */
+    const showEmptyState = (container, icon = 'fa-inbox', title = 'Nenhum resultado', message = 'Não encontramos nenhum resultado para sua busca.') => {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas ${icon}" aria-hidden="true"></i>
+                <h3>${title}</h3>
+                <p>${message}</p>
+            </div>
+        `;
+    };
+
+    /**
+     * Realizar busca rápida com debounce
      * @param {string} query - Texto da busca
      */
     const performQuickSearch = async (query) => {
@@ -766,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
 
             if (drivers.length === 0 && constructors.length === 0) {
-                searchResults.innerHTML = '<p class="empty-notification">Nenhum resultado encontrado.</p>';
+                showEmptyState(searchResults, 'fa-search', 'Nenhum resultado encontrado', 'Tente buscar por outro termo.');
                 return;
             }
 
@@ -776,6 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
             drivers.forEach(driver => {
                 const resultItem = document.createElement('div');
                 resultItem.className = 'search-result-item';
+                resultItem.setAttribute('role', 'listitem');
                 resultItem.innerHTML = `
                     <div class="search-result-info">
                         <h4>${driver.givenName} ${driver.familyName}</h4>
@@ -789,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
             constructors.forEach(constructor => {
                 const resultItem = document.createElement('div');
                 resultItem.className = 'search-result-item';
+                resultItem.setAttribute('role', 'listitem');
                 resultItem.innerHTML = `
                     <div class="search-result-info">
                         <h4>${constructor.name}</h4>
@@ -951,8 +1176,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners para as novas funcionalidades
     themeToggleBtn.addEventListener('click', toggleTheme);
     
+    // Aplicar debounce na busca rápida
+    const debouncedQuickSearch = debounce((query) => {
+        performQuickSearch(query);
+    }, 300);
+
     quickSearchInput.addEventListener('input', (e) => {
-        performQuickSearch(e.target.value);
+        debouncedQuickSearch(e.target.value);
     });
     
     searchBtn.addEventListener('click', () => {
@@ -1259,196 +1489,38 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     });
 
-    // Tela de Loading Inicial
+    // Tela de Loading Inicial - Versão Profissional
     const loadingOverlay = document.getElementById('loading-overlay');
     const skipIntroButton = document.getElementById('skip-intro');
-    const fireworksContainer = document.getElementById('fireworks-container');
+    const progressFill = document.getElementById('progress-fill');
+    const loadingStatus = document.getElementById('loading-status');
     
-    // Criar fogos de artifício
-    function createFireworks() {
-        // Cores intensas da F1
-        const colors = ['#e10600', '#ffffff', '#1E5BC6', '#ffff00', '#ff9800', '#00ff00'];
-        
-        // Verificar se está em um dispositivo móvel
-        const isMobile = window.innerWidth <= 768;
-        
-        // Ajustar a quantidade de fogos com base no tamanho da tela
-        const fireworksCount = isMobile ? 12 : 20;
-        
-        // Criar mais explosões e em diferentes momentos
-        for (let i = 0; i < fireworksCount; i++) {
-            setTimeout(() => {
-                // Distribuir os fogos por toda a tela, adaptando para telas menores
-                const x = Math.random() * window.innerWidth;
-                // Em dispositivos móveis, usar mais espaço vertical para os fogos
-                const y = Math.random() * window.innerHeight * (isMobile ? 0.6 : 0.8);
-                
-                // Criar explosão com tamanho variado, ajustado para telas menores
-                const size = isMobile ? 
-                    (Math.random() > 0.6 ? 'normal' : 'pequena') : 
-                    (Math.random() > 0.7 ? 'grande' : 'normal');
-                    
-                createExplosion(x, y, colors, size, isMobile);
-                
-                // Chance de criar uma explosão secundária, menos em dispositivos móveis
-                if (!isMobile && Math.random() > 0.5) {
-                    setTimeout(() => {
-                        const offsetX = x + (Math.random() * 200 - 100);
-                        const offsetY = y + (Math.random() * 200 - 100);
-                        createExplosion(offsetX, offsetY, colors, 'pequena', isMobile);
-                    }, 200 + Math.random() * 300);
-                }
-            }, i * (isMobile ? 300 : 250) + Math.random() * 500);
-        }
-    }
+    // Estados de carregamento
+    const loadingSteps = [
+        { progress: 20, status: 'Inicializando...' },
+        { progress: 40, status: 'Carregando dados...' },
+        { progress: 60, status: 'Processando informações...' },
+        { progress: 80, status: 'Finalizando...' },
+        { progress: 100, status: 'Concluído' }
+    ];
     
-    // Criar uma explosão de fogos
-    function createExplosion(x, y, colors, size = 'normal', isMobile = false) {
-        // Configurar tamanho da explosão, reduzido para dispositivos móveis
-        let particleCount, flashSize, particleSizeBase, particleSizeRandom, distance;
-        
-        // Ajustar parâmetros para dispositivos móveis
-        const mobileFactor = isMobile ? 0.7 : 1;
-        
-        if (size === 'grande') {
-            particleCount = Math.floor((50 + Math.floor(Math.random() * 30)) * mobileFactor);
-            flashSize = 30 * mobileFactor;
-            particleSizeBase = 5 * mobileFactor;
-            particleSizeRandom = 10 * mobileFactor;
-            distance = (120 + Math.random() * 100) * mobileFactor;
-        } else if (size === 'pequena') {
-            particleCount = Math.floor((20 + Math.floor(Math.random() * 15)) * mobileFactor);
-            flashSize = 10 * mobileFactor;
-            particleSizeBase = 3 * mobileFactor;
-            particleSizeRandom = 4 * mobileFactor;
-            distance = (50 + Math.random() * 50) * mobileFactor;
-        } else {
-            particleCount = Math.floor((35 + Math.floor(Math.random() * 25)) * mobileFactor);
-            flashSize = 20 * mobileFactor;
-            particleSizeBase = 4 * mobileFactor;
-            particleSizeRandom = 8 * mobileFactor;
-            distance = (80 + Math.random() * 100) * mobileFactor;
-        }
-        
-        // Escolher uma cor aleatória ou usar vermelho (cor F1) com mais frequência
-        const color = Math.random() > 0.4 ? colors[0] : colors[Math.floor(Math.random() * colors.length)];
-        
-        // Criar um flash inicial para simular a explosão
-        const flash = document.createElement('div');
-        flash.className = 'firework flash';
-        flash.style.left = x + 'px';
-        flash.style.top = y + 'px';
-        flash.style.width = flashSize + 'px';
-        flash.style.height = flashSize + 'px';
-        flash.style.borderRadius = '50%';
-        flash.style.backgroundColor = 'white';
-        flash.style.boxShadow = `0 0 40px 20px ${color}`;
-        flash.style.opacity = '0.9';
-        
-        fireworksContainer.appendChild(flash);
-        
-        flash.animate([
-            { transform: 'scale(1)', opacity: 0.9 },
-            { transform: 'scale(6)', opacity: 0 }
-        ], {
-            duration: 700,
-            easing: 'ease-out'
-        });
-        
-        setTimeout(() => {
-            flash.remove();
-        }, 700);
-        
-        // Criar partículas em todas as direções
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'firework';
+    let currentStep = 0;
+    
+    // Atualizar progresso
+    function updateProgress() {
+        if (currentStep < loadingSteps.length) {
+            const step = loadingSteps[currentStep];
+            progressFill.style.width = step.progress + '%';
+            loadingStatus.textContent = step.status;
+            currentStep++;
             
-            // Posição inicial no centro da explosão
-            particle.style.left = x + 'px';
-            particle.style.top = y + 'px';
-            
-            // Tamanho maior das partículas
-            const size = particleSizeBase + Math.random() * particleSizeRandom;
-            particle.style.width = size + 'px';
-            particle.style.height = size + 'px';
-            
-            // Aumentar a opacidade e brilho das partículas
-            particle.style.backgroundColor = color;
-            particle.style.boxShadow = `0 0 20px 8px ${color}`;
-            particle.style.opacity = '0.95';
-            
-            // Trajetória aleatória com maior alcance e curvas naturais
-            const angle = Math.random() * Math.PI * 2;
-            const speedMultiplier = 0.8 + Math.random() * 0.4; // Variação na velocidade
-            
-            // Adicionar gravidade para curva mais natural
-            const gravity = 0.1 + Math.random() * 0.2;
-            
-            // Duração variada para partículas da mesma explosão
-            const duration = 1200 + Math.random() * 1200;
-            
-            // Criar animações mais complexas com keyframes
-            const keyframes = [
-                { transform: 'scale(1.5)', opacity: 1, offset: 0 },
-                { transform: 'scale(1)', opacity: 0.9, offset: 0.1 },
-                { transform: 'scale(0.8)', opacity: 0.8, offset: 0.6 },
-                { transform: 'scale(0)', opacity: 0, offset: 1 }
-            ];
-            
-            // Adicionar posições para criar trajetória em arco
-            const positionKeyframes = [];
-            for (let step = 0; step <= 10; step++) {
-                const progress = step / 10;
-                const horizontalDistance = (Math.cos(angle) * distance * speedMultiplier) * progress;
-                // Adicionar efeito de gravidade para criar um arco
-                const verticalDistance = (Math.sin(angle) * distance * speedMultiplier) * progress + (gravity * Math.pow(progress * 10, 2));
-                
-                positionKeyframes.push({
-                    left: (x + horizontalDistance) + 'px',
-                    top: (y + verticalDistance) + 'px',
-                    offset: progress
-                });
+            if (currentStep < loadingSteps.length) {
+                const delay = currentStep === 1 ? 800 : (currentStep === loadingSteps.length - 1 ? 600 : 400);
+                setTimeout(updateProgress, delay);
+            } else {
+                // Aguardar um pouco antes de esconder
+                setTimeout(hideLoadingScreen, 500);
             }
-            
-            // Combinar keyframes de escala/opacidade com posições
-            const combinedKeyframes = keyframes.map(frame => {
-                const matchingPositionFrame = positionKeyframes.find(pos => pos.offset === frame.offset);
-                return { ...frame, ...matchingPositionFrame };
-            });
-            
-            // Preencher com interpolações de posição
-            positionKeyframes.forEach(posFrame => {
-                if (!combinedKeyframes.some(ck => ck.offset === posFrame.offset)) {
-                    const matchingFrame = keyframes.reduce((prev, curr) => 
-                        Math.abs(curr.offset - posFrame.offset) < Math.abs(prev.offset - posFrame.offset) 
-                            ? curr : prev, keyframes[0]);
-                    
-                    combinedKeyframes.push({
-                        ...matchingFrame,
-                        ...posFrame,
-                        transform: matchingFrame.transform,
-                        opacity: matchingFrame.opacity
-                    });
-                }
-            });
-            
-            // Ordenar keyframes por offset
-            combinedKeyframes.sort((a, b) => a.offset - b.offset);
-            
-            // Animação mais dramática e natural
-            particle.animate(combinedKeyframes, {
-                duration: duration,
-                easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)',
-                fill: 'forwards'
-            });
-            
-            fireworksContainer.appendChild(particle);
-            
-            // Remover após animação
-            setTimeout(() => {
-                particle.remove();
-            }, duration);
         }
     }
     
@@ -1457,19 +1529,31 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingOverlay.classList.add('hidden');
         setTimeout(() => {
             loadingOverlay.style.display = 'none';
-        }, 800);
+        }, 600);
     }
     
-    // Iniciar sequência de animação
-    setTimeout(createFireworks, 500);
+    // Iniciar animação de progresso após um pequeno delay
+    setTimeout(() => {
+        updateProgress();
+    }, 300);
     
     // Verificar se é dispositivo móvel para ajustar o tempo de exibição
     const isMobileDevice = window.innerWidth <= 768;
-    // Esconder automaticamente após tempo adequado (menor em dispositivos móveis)
-    setTimeout(hideLoadingScreen, isMobileDevice ? 5000 : 7500);
+    // Timeout de segurança (máximo 4 segundos)
+    setTimeout(() => {
+        if (!loadingOverlay.classList.contains('hidden')) {
+            progressFill.style.width = '100%';
+            loadingStatus.textContent = 'Concluído';
+            hideLoadingScreen();
+        }
+    }, isMobileDevice ? 3500 : 4000);
     
     // Botão para pular introdução
     if (skipIntroButton) {
-        skipIntroButton.addEventListener('click', hideLoadingScreen);
+        skipIntroButton.addEventListener('click', () => {
+            progressFill.style.width = '100%';
+            loadingStatus.textContent = 'Concluído';
+            hideLoadingScreen();
+        });
     }
 }); 

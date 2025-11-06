@@ -3,49 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1LiveHub - Seu Hub de Fórmula 1</title>
+    <title>F1LiveHub - Seu Hub Completo de Fórmula 1 | Pilotos, Equipes, Corridas e Classificação</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="F1LiveHub - Seu hub completo para acompanhar estatísticas, resultados, pilotos, equipes e informações sobre Fórmula 1 em tempo real. Calendário completo, classificação e muito mais.">
+    <meta name="keywords" content="Fórmula 1, F1, pilotos F1, equipes F1, classificação F1, calendário F1, estatísticas F1, resultados F1">
+    <meta name="author" content="F1LiveHub">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#e10600">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="F1LiveHub - Seu Hub Completo de Fórmula 1">
+    <meta property="og:description" content="Acompanhe todas as informações da Fórmula 1 em tempo real: pilotos, equipes, corridas e classificação.">
+    <meta property="og:image" content="img/f1_hub.jpg">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="F1LiveHub - Seu Hub Completo de Fórmula 1">
+    <meta name="twitter:description" content="Acompanhe todas as informações da Fórmula 1 em tempo real.">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="https://www.formula1.com/etc/designs/fom-website/favicon.ico" type="image/x-icon">
-    <meta name="description" content="F1LiveHub - Seu hub completo para acompanhar estatísticas, resultados e informações sobre Fórmula 1 em tempo real.">
+    
 </head>
 <body>
     <!-- Tela de Loading Inicial -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="loading-content">
-            <div class="loading-logo">F1LiveHub</div>
-            <div class="loading-message">Você cruzou a linha de chegada para o hub certo</div>
-            <div class="checkered-flag">
-                <div class="flag-pattern"></div>
+            <div class="loading-brand">
+                <div class="loading-logo-wrapper">
+                    <span class="loading-logo">F1</span>
+                    <span class="loading-logo-text">LiveHub</span>
+                </div>
+                <div class="loading-subtitle">Seu hub completo de Fórmula 1</div>
             </div>
-            <div id="fireworks-container" class="fireworks-container"></div>
-            <button id="skip-intro" class="skip-intro">Pular Introdução</button>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="loading-status" id="loading-status">Carregando...</div>
+            </div>
+            <button id="skip-intro" class="skip-intro" aria-label="Pular introdução">Pular</button>
+        </div>
+        <div class="loading-background">
+            <div class="racing-line"></div>
         </div>
     </div>
 
-    <header>
-        <button class="menu-toggle" id="menu-toggle" aria-label="Menu de navegação">
-            <i class="fas fa-bars"></i>
+    <header role="banner">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Menu de navegação" aria-expanded="false" aria-controls="main-nav">
+            <i class="fas fa-bars" aria-hidden="true"></i>
         </button>
         <div class="container">
             <div class="logo">
                 <h1>F1LiveHub</h1>
             </div>
-            <nav>
+            <nav id="main-nav" role="navigation" aria-label="Navegação principal">
                 <ul>
-                    <li><a href="#" class="active" data-page="home"><i class="fas fa-home"></i> Início</a></li>
-                    <li><a href="#" data-page="drivers"><i class="fas fa-user-astronaut"></i> Pilotos</a></li>
-                    <li><a href="#" data-page="teams"><i class="fas fa-car-side"></i> Equipes</a></li>
-                    <li><a href="#" data-page="races"><i class="fas fa-flag-checkered"></i> Corridas</a></li>
-                    <li><a href="#" data-page="standings"><i class="fas fa-trophy"></i> Classificação</a></li>
-                    <!-- <li><a href="#" data-page="history"><i class="fas fa-history"></i> Histórico</a></li> -->
+                    <li><a href="#" class="active" data-page="home" aria-current="page"><i class="fas fa-home" aria-hidden="true"></i> <span>Início</span></a></li>
+                    <li><a href="#" data-page="drivers"><i class="fas fa-user-astronaut" aria-hidden="true"></i> <span>Pilotos</span></a></li>
+                    <li><a href="#" data-page="teams"><i class="fas fa-car-side" aria-hidden="true"></i> <span>Equipes</span></a></li>
+                    <li><a href="#" data-page="races"><i class="fas fa-flag-checkered" aria-hidden="true"></i> <span>Corridas</span></a></li>
+                    <li><a href="#" data-page="standings"><i class="fas fa-trophy" aria-hidden="true"></i> <span>Classificação</span></a></li>
                 </ul>
                 <div class="theme-toggle">
-                    <button id="theme-toggle-btn" aria-label="Alternar tema claro/escuro">
-                        <i class="fas fa-moon"></i>
+                    <button id="theme-toggle-btn" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+                        <i class="fas fa-moon" aria-hidden="true"></i>
                     </button>
                 </div>
             </nav>
@@ -88,13 +117,13 @@
                     </div>
                 </div>
                 
-                <div class="search-container">
-                    <h3><i class="fas fa-search"></i> Busca Rápida</h3>
+                <div class="search-container" role="search" aria-label="Busca rápida">
+                    <h3><i class="fas fa-search" aria-hidden="true"></i> Busca Rápida</h3>
                     <div class="search-box">
-                        <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe...">
-                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                        <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe..." aria-label="Campo de busca rápida" autocomplete="off">
+                        <button id="search-btn" aria-label="Executar busca"><i class="fas fa-search" aria-hidden="true"></i></button>
                     </div>
-                    <div id="search-results" class="search-results"></div>
+                    <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Resultados da busca"></div>
                 </div>
                 
                 <div class="notification-center">
@@ -105,26 +134,49 @@
                 </div>
             </section>
 
-            <section id="drivers" class="page">
+            <section id="drivers" class="page" aria-labelledby="drivers-heading">
                 <div class="page-header">
-                    <h2><i class="fas fa-user-astronaut"></i> Pilotos da Temporada</h2>
-                    <div class="search-box">
-                        <input type="text" id="driver-search" placeholder="Buscar piloto...">
-                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    <h2 id="drivers-heading"><i class="fas fa-user-astronaut" aria-hidden="true"></i> Pilotos da Temporada</h2>
+                    <div class="page-controls">
+                        <div class="search-box">
+                            <input type="text" id="driver-search" placeholder="Buscar piloto..." aria-label="Buscar piloto">
+                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="filter-controls">
+                            <select id="driver-sort" aria-label="Ordenar pilotos" class="sort-select">
+                                <option value="position">Posição</option>
+                                <option value="points">Pontos</option>
+                                <option value="wins">Vitórias</option>
+                                <option value="name">Nome</option>
+                            </select>
+                            <select id="driver-filter" aria-label="Filtrar por equipe" class="filter-select">
+                                <option value="all">Todas as equipes</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="drivers-grid"></div>
+                <div class="drivers-grid" role="list" aria-label="Lista de pilotos"></div>
             </section>
 
-            <section id="teams" class="page">
+            <section id="teams" class="page" aria-labelledby="teams-heading">
                 <div class="page-header">
-                    <h2><i class="fas fa-car-side"></i> Equipes da Temporada</h2>
-                    <div class="search-box">
-                        <input type="text" id="team-search" placeholder="Buscar equipe...">
-                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    <h2 id="teams-heading"><i class="fas fa-car-side" aria-hidden="true"></i> Equipes da Temporada</h2>
+                    <div class="page-controls">
+                        <div class="search-box">
+                            <input type="text" id="team-search" placeholder="Buscar equipe..." aria-label="Buscar equipe">
+                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="filter-controls">
+                            <select id="team-sort" aria-label="Ordenar equipes" class="sort-select">
+                                <option value="position">Posição</option>
+                                <option value="points">Pontos</option>
+                                <option value="wins">Vitórias</option>
+                                <option value="name">Nome</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="teams-grid"></div>
+                <div class="teams-grid" role="list" aria-label="Lista de equipes"></div>
             </section>
 
             <section id="races" class="page">

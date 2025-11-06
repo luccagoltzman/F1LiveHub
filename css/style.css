@@ -386,15 +386,71 @@ main {
 
 .page-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.page-header h2 {
+    margin-bottom: 0;
+}
+
+.page-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     align-items: center;
-    margin-bottom: 20px;
+    justify-content: space-between;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sort-select,
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: var(--card-bg);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23222' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.75rem) center;
+    padding-right: 2.5rem;
+}
+
+[data-theme="dark"] .sort-select,
+[data-theme="dark"] .filter-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23f1f1f1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+.sort-select:hover,
+.filter-select:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+}
+
+.sort-select:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.2);
 }
 
 .search-box {
     display: flex;
     max-width: 500px;
-    margin: 0 auto;
+    margin: 0;
+    flex: 1;
+    min-width: 250px;
 }
 
 .search-box input {
@@ -1109,6 +1165,67 @@ main {
 
 .laps-table tbody tr:hover {
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Skeleton Loaders */
+.skeleton {
+    background: linear-gradient(90deg, 
+        var(--card-bg) 0%, 
+        rgba(0, 0, 0, 0.05) 50%, 
+        var(--card-bg) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: var(--border-radius);
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-header {
+    height: 30px;
+    width: 60%;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.skeleton-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    margin: 0 auto 20px;
+}
+
+.skeleton-line {
+    height: 16px;
+    width: 100%;
+    margin-bottom: 12px;
+    border-radius: 4px;
+}
+
+.skeleton-line.short {
+    width: 70%;
+}
+
+.skeleton-line.medium {
+    width: 85%;
+}
+
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
 }
 
 /* Loading animado para tabelas */
@@ -2443,21 +2560,22 @@ footer p {
     }
 }
 
-/* Tela de Loading Inicial */
+/* Tela de Loading Inicial - Design Profissional */
 .loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #000 0%, #15151e 100%);
+    background: linear-gradient(135deg, #0a0a0f 0%, #15151e 50%, #1a1a24 100%);
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.8s ease-out, visibility 0.8s;
+    transition: opacity 0.6s ease-out, visibility 0.6s;
     opacity: 1;
     visibility: visible;
+    overflow: hidden;
 }
 
 .loading-overlay.hidden {
@@ -2466,219 +2584,228 @@ footer p {
     pointer-events: none;
 }
 
+.loading-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.racing-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--primary-color) 20%, 
+        var(--primary-color) 80%, 
+        transparent 100%
+    );
+    animation: racingLineMove 2s ease-in-out infinite;
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+@keyframes racingLineMove {
+    0% { transform: translateX(-100%); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
 .loading-content {
     text-align: center;
     position: relative;
     z-index: 1000;
     padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+}
+
+.loading-brand {
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.loading-logo-wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .loading-logo {
-    font-size: 5rem;
+    font-size: 4.5rem;
     font-weight: 900;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    position: relative;
-    text-shadow: 0 0 20px var(--primary-color);
-    animation: loadingPulse 2s infinite;
+    color: var(--primary-color);
+    letter-spacing: -2px;
+    text-shadow: 0 0 30px rgba(225, 6, 0, 0.5);
+    animation: logoGlow 2s ease-in-out infinite;
 }
 
-.loading-message {
-    font-size: 1.6rem;
-    color: #fff;
-    margin-bottom: 2.5rem;
-    opacity: 0;
-    font-weight: 500;
-    animation: loadingFadeIn 1s forwards 0.7s;
+.loading-logo-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 2px;
+    opacity: 0.95;
 }
 
-/* Bandeira Quadriculada */
-.checkered-flag {
-    width: 200px;
-    height: 100px;
-    margin: 0 auto 2rem;
-    position: relative;
-    overflow: hidden;
-    perspective: 300px;
-    animation: waveLoadingFlag 3s infinite ease-in-out;
+.loading-subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
-.flag-pattern {
+.loading-progress {
+    margin-top: 3rem;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.progress-bar {
     width: 100%;
-    height: 100%;
-    background-image: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%);
-    background-size: 25px 25px;
-    animation: loadingFlagWave 1s linear infinite;
-    transform-origin: center;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 1rem;
 }
 
-/* Fogos de Artifício Mais Intensos */
-.fireworks-container {
-    position: fixed;
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), #ff4444);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--primary-color);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 999;
-    pointer-events: none;
-    overflow: visible;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+    );
+    animation: progressShine 1.5s infinite;
 }
 
-.firework {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9990;
-    will-change: transform, opacity, left, top;
-    filter: blur(0.5px);
-    transform-style: preserve-3d;
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
-.firework.flash {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    z-index: 9995;
-    filter: blur(3px);
-    animation: flashPulse 0.7s ease-out forwards;
-    mix-blend-mode: screen;
+.loading-status {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-/* Gradiente radial para partículas mais realistas */
-.firework::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 60%, transparent 70%);
-    border-radius: 50%;
-    opacity: 0.7;
-    mix-blend-mode: screen;
-    pointer-events: none;
-}
-
-/* Efeito de brilho adicional */
-.firework::after {
-    content: '';
-    position: absolute;
-    top: -100%;
-    left: -100%;
-    width: 300%;
-    height: 300%;
-    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 40%);
-    border-radius: 50%;
-    opacity: 0.4;
-    pointer-events: none;
-    filter: blur(2px);
-    mix-blend-mode: screen;
-}
-
-@keyframes flashPulse {
-    0% { transform: scale(1); opacity: 1; }
-    40% { transform: scale(4); opacity: 0.8; }
-    100% { transform: scale(8); opacity: 0; }
-}
-
-@keyframes fireworkTrail {
-    0% { opacity: 0.9; width: 100%; height: 100%; }
-    100% { opacity: 0; width: 70%; height: 70%; }
-}
-
-/* Botão para pular introdução */
 .skip-intro {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 10px 20px;
-    border-radius: 30px;
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    margin-top: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
     transition: all 0.3s ease;
     opacity: 0;
-    animation: loadingFadeIn 0.5s forwards 2s;
+    animation: fadeIn 0.5s forwards 1s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 1001;
 }
 
 .skip-intro:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
 }
 
-/* Animações para Loading */
-@keyframes loadingPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+.skip-intro:active {
+    transform: translateY(0);
 }
 
-@keyframes loadingFadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-@keyframes waveLoadingFlag {
-    0%, 100% { transform: rotateX(10deg); }
-    50% { transform: rotateX(-5deg); }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-@keyframes loadingFlagWave {
-    0% { background-position: 0 0; }
-    100% { background-position: 25px 25px; }
+@keyframes logoGlow {
+    0%, 100% {
+        text-shadow: 0 0 30px rgba(225, 6, 0, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 40px rgba(225, 6, 0, 0.8), 0 0 60px rgba(225, 6, 0, 0.4);
+    }
 }
 
 /* Media queries para tela de loading em dispositivos móveis */
 @media (max-width: 768px) {
-    /* Estilos para elementos de loading */
     .loading-logo {
-        font-size: 3rem;
-        margin-bottom: 1rem;
+        font-size: 3.5rem;
     }
     
-    .loading-message {
-        font-size: 1.2rem;
-        margin-bottom: 1.5rem;
-        padding: 0 15px;
+    .loading-logo-text {
+        font-size: 2rem;
     }
     
-    .checkered-flag {
-        width: 150px;
-        height: 60px;
+    .loading-subtitle {
+        font-size: 0.85rem;
     }
     
     .loading-content {
-        padding: 1rem;
+        padding: 1.5rem;
     }
     
     .skip-intro {
-        display: none; /* Ocultar botão de pular introdução em dispositivos móveis */
+        bottom: 1rem;
+        right: 1rem;
+        padding: 6px 12px;
+        font-size: 0.7rem;
     }
     
-    /* Otimização de fogos de artifício para mobile */
-    .fireworks-container {
-        opacity: 0.8;
+    .loading-progress {
+        margin-top: 2rem;
     }
-    
-    .firework {
-        opacity: 0.7;
-        filter: blur(0.8px);
-    }
-    
-    .firework::before,
-    .firework::after {
-        display: none;
-    }
-    
-    .firework.flash {
-        animation: flashPulseMobile 0.6s ease-out forwards;
-        transform-origin: center;
-    }
-    
-    @keyframes flashPulseMobile {
-        0% { transform: scale(1); opacity: 0.8; }
-        40% { transform: scale(2.5); opacity: 0.6; }
-        100% { transform: scale(4); opacity: 0; }
-    }
-    
-    /* Ajustes para tabelas em dispositivos móveis */
+}
+
+/* Ajustes para tabelas em dispositivos móveis */
     /* Garantir que elementos ocultos não ocupem espaço */
     .hide-on-mobile {
         display: none !important;
@@ -2866,4 +2993,120 @@ footer p {
         color: #e74c3c;
         font-style: italic;
     }
+    
+    .page-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-controls {
+        width: 100%;
+    }
+    
+    .sort-select,
+    .filter-select {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .search-box {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--secondary-color) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Estados vazios melhorados */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.empty-state p {
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Melhorias de acessibilidade */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 10000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Focus visible para melhor acessibilidade */
+*:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
 } 
