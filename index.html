@@ -179,9 +179,33 @@
                 <div class="teams-grid" role="list" aria-label="Lista de equipes"></div>
             </section>
 
-            <section id="races" class="page">
-                <h2><i class="fas fa-flag-checkered"></i> Calendário de Corridas</h2>
-                <div class="races-list"></div>
+            <section id="races" class="page" aria-labelledby="races-heading">
+                <div class="page-header">
+                    <h2 id="races-heading"><i class="fas fa-flag-checkered" aria-hidden="true"></i> Calendário de Corridas</h2>
+                    <div class="page-controls">
+                        <div class="search-box">
+                            <input type="text" id="race-search" placeholder="Buscar por país ou circuito..." aria-label="Buscar corrida">
+                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="filter-controls">
+                            <select id="race-filter" aria-label="Filtrar por status" class="filter-select">
+                                <option value="all">Todas as corridas</option>
+                                <option value="upcoming">Próximas</option>
+                                <option value="past">Concluídas</option>
+                            </select>
+                            <select id="race-sort" aria-label="Ordenar corridas" class="sort-select">
+                                <option value="date">Data</option>
+                                <option value="name">Nome</option>
+                                <option value="country">País</option>
+                            </select>
+                            <button id="view-toggle" class="view-toggle-btn" aria-label="Alternar visualização" title="Alternar entre grid e lista">
+                                <i class="fas fa-th" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="races-stats" id="races-stats"></div>
+                <div class="races-list" id="races-list-container"></div>
             </section>
 
             <section id="standings" class="page">

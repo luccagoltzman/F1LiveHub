@@ -224,6 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Armazenar dados originais para filtros
     let allDriversData = [];
     let allTeamsData = [];
+    let allRacesData = [];
+    let currentRacesView = 'grid'; // 'grid' ou 'list'
 
     /**
      * Função debounce para otimizar buscas
@@ -241,6 +243,101 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    };
+
+    /**
+     * Criar skeleton loaders para feedback visual durante carregamento
+     * @param {number} count - Número de skeletons a criar
+     * @returns {string} - HTML dos skeletons
+     */
+    const createSkeletonLoaders = (count = 6) => {
+        return Array.from({ length: count }, () => `
+            <div class="skeleton-card skeleton" role="status" aria-label="Carregando">
+                <div class="skeleton-header skeleton"></div>
+                <div class="skeleton-image skeleton"></div>
+                <div class="skeleton-line skeleton"></div>
+                <div class="skeleton-line short skeleton"></div>
+                <div class="skeleton-line medium skeleton"></div>
+            </div>
+        `).join('');
+    };
+
+    /**
+     * Exibir estado vazio melhorado
+     * @param {HTMLElement} container - Container onde exibir
+     * @param {string} icon - Ícone Font Awesome
+     * @param {string} title - Título
+     * @param {string} message - Mensagem
+     */
+    const showEmptyState = (container, icon = 'fa-inbox', title = 'Nenhum resultado', message = 'Não encontramos nenhum resultado para sua busca.') => {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas ${icon}" aria-hidden="true"></i>
+                <h3>${title}</h3>
+                <p>${message}</p>
+            </div>
+        `;
+    };
+
+    /**
+     * Sistema de Notificações
+     */
+    const notifications = {
+        items: [],
+        
+        add(title, message, type = 'info') {
+            const notification = {
+                id: Date.now(),
+                title,
+                message,
+                type,
+                time: new Date(),
+                read: false
+            };
+            
+            this.items.unshift(notification);
+            this.updateUI();
+            this.updateBadge();
+        },
+        
+        markAsRead(id) {
+            const notification = this.items.find(item => item.id === id);
+            if (notification) {
+                notification.read = true;
+                this.updateUI();
+                this.updateBadge();
+            }
+        },
+        
+        updateUI() {
+            if (this.items.length === 0) {
+                notificationsList.innerHTML = '<p class="empty-notification">Sem notificações no momento.</p>';
+                return;
+            }
+            
+            notificationsList.innerHTML = this.items.map(notification => `
+                <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+                    <i class="notification-icon fas fa-${notification.type === 'info' ? 'info-circle' : notification.type === 'error' ? 'exclamation-circle' : notification.type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    <div class="notification-content">
+                        <h4>${notification.title}</h4>
+                        <p>${notification.message}</p>
+                        <div class="notification-time">${notification.time.toLocaleTimeString('pt-BR')}</div>
+                    </div>
+                </div>
+            `).join('');
+        },
+        
+        updateBadge() {
+            const unreadCount = this.items.filter(item => !item.read).length;
+            notificationBadge.textContent = unreadCount;
+            notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+        },
+        
+        clear() {
+            this.items = [];
+            this.updateUI();
+            this.updateBadge();
+        }
     };
 
     /**
@@ -510,21 +607,218 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
+     * Filtrar e ordenar corridas
+     */
+    const filterAndSortRaces = () => {
+        const filterBy = document.getElementById('race-filter')?.value || 'all';
+        const sortBy = document.getElementById('race-sort')?.value || 'date';
+        const searchQuery = document.getElementById('race-search')?.value.toLowerCase() || '';
+        
+        let filtered = [...allRacesData];
+        
+        // Aplicar filtro de status
+        if (filterBy === 'upcoming') {
+            filtered = filtered.filter(gp => !gp.isPast);
+        } else if (filterBy === 'past') {
+            filtered = filtered.filter(gp => gp.isPast);
+        }
+        
+        // Aplicar busca
+        if (searchQuery) {
+            filtered = filtered.filter(gp => 
+                gp.competition.name.toLowerCase().includes(searchQuery) ||
+                gp.circuit.name.toLowerCase().includes(searchQuery) ||
+                gp.country.toLowerCase().includes(searchQuery) ||
+                gp.city.toLowerCase().includes(searchQuery)
+            );
+        }
+        
+        // Aplicar ordenação
+        filtered.sort((a, b) => {
+            switch (sortBy) {
+                case 'name':
+                    return a.competition.name.localeCompare(b.competition.name);
+                case 'country':
+                    return a.country.localeCompare(b.country);
+                case 'date':
+                default:
+                    const dateA = new Date(a.startDate);
+                    const dateB = new Date(b.startDate);
+                    return dateA - dateB;
+            }
+        });
+        
+        return filtered;
+    };
+
+    /**
+     * Renderizar corridas
+     */
+    const renderRaces = (races) => {
+        const racesListContainer = document.getElementById('races-list-container');
+        const racesStats = document.getElementById('races-stats');
+        
+        if (!racesListContainer) {
+            console.error('races-list-container não encontrado!');
+            return;
+        }
+        
+        console.log('Renderizando corridas:', races.length);
+        racesListContainer.innerHTML = '';
+        
+        if (races.length === 0) {
+            showEmptyState(racesListContainer, 'fa-flag-checkered', 'Nenhuma corrida encontrada', 'Não há corridas que correspondam aos filtros selecionados.');
+            if (racesStats) racesStats.innerHTML = '';
+            return;
+        }
+        
+        // Calcular estatísticas
+        const upcomingCount = races.filter(gp => !gp.isPast).length;
+        const pastCount = races.filter(gp => gp.isPast).length;
+        
+        if (racesStats) {
+            racesStats.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon upcoming">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${upcomingCount}</div>
+                            <div class="stat-label">Próximas Corridas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon past">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${pastCount}</div>
+                            <div class="stat-label">Corridas Concluídas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${races.length}</div>
+                            <div class="stat-label">Total de GPs</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Determinar classe de visualização
+        const viewClass = currentRacesView === 'list' ? 'races-list-view' : 'races-grid-view';
+        racesListContainer.className = `races-list ${viewClass}`;
+        
+        races.forEach((gp, index) => {
+            const startDate = new Date(gp.startDate);
+            const endDate = new Date(gp.endDate);
+            const daysUntil = Math.ceil((startDate - new Date()) / (1000 * 60 * 60 * 24));
+            
+            const gpCard = document.createElement('div');
+            gpCard.className = `race-card ${gp.isPast ? 'past' : 'upcoming'}`;
+            gpCard.dataset.gpIndex = gp.originalIndex;
+            gpCard.setAttribute('role', 'listitem');
+            
+            // Formatar data de forma mais clara
+            const dateFormat = startDate.toLocaleDateString('pt-BR', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+            const endDateFormat = endDate.toLocaleDateString('pt-BR', { 
+                day: 'numeric', 
+                month: 'short' 
+            });
+            
+            // Determinar status mais detalhado
+            let statusText = 'Em breve';
+            let statusClass = 'upcoming';
+            if (gp.isPast) {
+                statusText = 'Concluído';
+                statusClass = 'past';
+            } else if (daysUntil <= 7 && daysUntil > 0) {
+                statusText = `Em ${daysUntil} dia${daysUntil > 1 ? 's' : ''}`;
+                statusClass = 'soon';
+            } else if (daysUntil <= 0) {
+                statusText = 'Hoje';
+                statusClass = 'today';
+            }
+            
+            gpCard.innerHTML = `
+                <div class="race-card-header">
+                    <div class="race-round">${gp.round}</div>
+                    <div class="race-status-badge ${statusClass}">
+                        <i class="fas fa-${statusClass === 'past' ? 'check-circle' : statusClass === 'today' ? 'clock' : 'calendar-alt'}"></i>
+                        <span>${statusText}</span>
+                    </div>
+                </div>
+                <div class="race-card-body">
+                    <div class="race-main-info">
+                        <h3 class="race-name">${gp.competition.name}</h3>
+                        <div class="race-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${gp.circuit.name}</span>
+                        </div>
+                        <div class="race-location-details">
+                            <span>${gp.city}, ${gp.country}</span>
+                        </div>
+                    </div>
+                    <div class="race-dates">
+                        <div class="race-date-main">
+                            <i class="far fa-calendar"></i>
+                            <div class="date-content">
+                                <div class="date-start">${dateFormat}</div>
+                                ${startDate.toDateString() !== endDate.toDateString() ? 
+                                    `<div class="date-separator">até</div>
+                                     <div class="date-end">${endDateFormat}</div>` : ''
+                                }
+                            </div>
+                        </div>
+                        <div class="race-events-count">
+                            <i class="fas fa-list"></i>
+                            <span>${gp.events.length} evento${gp.events.length > 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="race-card-footer">
+                    <button class="btn view-events-btn">
+                        <i class="fas fa-eye"></i>
+                        <span>Ver Detalhes</span>
+                    </button>
+                </div>
+            `;
+            
+            racesListContainer.appendChild(gpCard);
+        });
+        
+        console.log(`Cards de corridas renderizados: ${racesListContainer.children.length}`);
+    };
+
+    /**
      * Carregar o calendário de corridas da temporada selecionada
      */
     const loadRaces = async () => {
         try {
             const selectedSeason = currentSeasonSelect.value;
-            racesList.innerHTML = '<div class="loading">Carregando calendário de corridas...</div>';
+            const racesListContainer = document.getElementById('races-list-container');
+            if (!racesListContainer) return;
+            
+            racesListContainer.innerHTML = '<div class="loading">Carregando calendário de corridas...</div>';
             
             const races = await F1API.getCurrentRaces(selectedSeason);
             
+            console.log('Corridas carregadas da API:', races.length);
+            
             if (races.length === 0) {
-                racesList.innerHTML = '<p>Nenhuma corrida encontrada.</p>';
+                console.log('Nenhuma corrida encontrada');
+                showEmptyState(racesListContainer, 'fa-flag-checkered', 'Nenhuma corrida encontrada', 'Não há corridas disponíveis para esta temporada.');
                 return;
             }
-            
-            racesList.innerHTML = '';
             
             // Agrupar corridas por Grand Prix (localização/competição)
             const grandPrixEvents = {};
@@ -543,6 +837,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 grandPrixEvents[gpKey].events.push(race);
             });
             
+            console.log('Grand Prix agrupados:', Object.keys(grandPrixEvents).length);
+            
             // Ordenar os GPs por data do primeiro evento
             const sortedGPs = Object.values(grandPrixEvents).sort((a, b) => {
                 const dateA = new Date(a.events[0].date);
@@ -550,232 +846,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 return dateA - dateB;
             });
             
-            // Criar cards para cada Grand Prix
-            sortedGPs.forEach((gp, index) => {
-                // Verificar se o GP já ocorreu (todos os eventos terminaram)
+            // Armazenar dados originais
+            allRacesData = sortedGPs.map((gp, index) => {
                 const now = new Date();
                 const latestEvent = gp.events.reduce((latest, event) => {
                     return new Date(event.date) > new Date(latest.date) ? event : latest;
                 }, gp.events[0]);
                 const isPast = new Date(latestEvent.date) < now;
-                
-                // Encontrar as datas de início e fim do GP
                 const startDate = new Date(gp.events[0].date);
                 const endDate = new Date(latestEvent.date);
                 
-                const gpCard = document.createElement('div');
-                gpCard.className = `race-card ${isPast ? 'past' : 'upcoming'}`;
-                gpCard.dataset.gpIndex = index;
-                
-                gpCard.innerHTML = `
-                    <div class="race-round">${index + 1}</div>
-                    <div class="race-info">
-                        <h3>${gp.competition.name}</h3>
-                        <p>${gp.circuit.name}, ${gp.city}, ${gp.country}</p>
-                        <p class="event-count">${gp.events.length} evento${gp.events.length > 1 ? 's' : ''}</p>
-                    </div>
-                    <div class="race-date">
-                        <div class="date">
-                            ${startDate.toLocaleDateString('pt-BR')}
-                            ${startDate.toDateString() !== endDate.toDateString() ? ' a ' + endDate.toLocaleDateString('pt-BR') : ''}
-                        </div>
-                        <div class="status ${isPast ? 'past' : 'upcoming'}">${isPast ? 'Concluído' : 'Em breve'}</div>
-                    </div>
-                    <button class="btn view-events-btn">Ver detalhes</button>
-                `;
-                
-                racesList.appendChild(gpCard);
+                return {
+                    ...gp,
+                    isPast,
+                    startDate,
+                    endDate,
+                    round: index + 1,
+                    originalIndex: index
+                };
             });
             
-            // Adicionar evento para os botões de detalhes
-            document.querySelectorAll('.view-events-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const gpCard = e.target.closest('.race-card');
-                    const gpIndex = parseInt(gpCard.dataset.gpIndex);
-                    const gp = sortedGPs[gpIndex];
-                    
-                    // Criar modal com os eventos do GP
-                    const modal = document.createElement('div');
-                    modal.className = 'modal';
-                    
-                    // Ordenar eventos por data
-                    const sortedEvents = [...gp.events].sort((a, b) => new Date(a.date) - new Date(b.date));
-                    
-                    modal.innerHTML = `
-                        <div class="modal-content">
-                            <span class="close">&times;</span>
-                            <h2>${gp.competition.name}</h2>
-                            <p><i class="fas fa-map-marker-alt"></i> ${gp.circuit.name}, ${gp.city}, ${gp.country}</p>
-                            
-                            <h3 class="mt-4"><i class="fas fa-calendar-alt"></i> Eventos</h3>
-                            <div class="events-list">
-                                ${sortedEvents.map(event => {
-                                    const eventDate = new Date(event.date);
-                                    const isPastEvent = eventDate < new Date();
-                                    
-                                    // Definir ícone com base no tipo de evento
-                                    let eventIcon = 'flag-checkered';
-                                    let eventTypeLabel = 'Sessão';
-                                    
-                                    if (event.type) {
-                                        const type = event.type.toLowerCase();
-                                        if (type.includes('treino') || type.includes('practice')) {
-                                            eventIcon = 'stopwatch';
-                                            eventTypeLabel = 'Treino Livre';
-                                        } else if (type.includes('classificação') || type.includes('qualifying')) {
-                                            eventIcon = 'chart-line';
-                                            eventTypeLabel = 'Classificação';
-                                        } else if (type.includes('sprint')) {
-                                            eventIcon = 'tachometer-alt';
-                                            eventTypeLabel = 'Sprint';
-                                        } else if (type.includes('corrida') || type.includes('race')) {
-                                            eventIcon = 'flag-checkered';
-                                            eventTypeLabel = 'Corrida';
-                                        }
-                                    }
-                                    
-                                    // Formatar data e hora
-                                    const formattedDate = eventDate.toLocaleDateString('pt-BR', { 
-                                        weekday: 'long', 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric' 
-                                    });
-                                    
-                                    // Formatar hora se disponível
-                                    const formattedTime = event.time 
-                                        ? new Date(`2023-01-01T${event.time}`).toLocaleTimeString('pt-BR', { 
-                                            hour: '2-digit', 
-                                            minute: '2-digit' 
-                                          }) 
-                                        : 'Horário não definido';
-                                    
-                                    return `
-                                        <div class="event-card ${isPastEvent ? 'past' : 'upcoming'}">
-                                            <div class="event-icon">
-                                                <i class="fas fa-${eventIcon}"></i>
-                                            </div>
-                                            <div class="event-details">
-                                                <div class="event-type">${event.type || eventTypeLabel}</div>
-                                                <h4>${event.name || event.type || 'Evento'}</h4>
-                                                <p><i class="far fa-calendar"></i> ${formattedDate}</p>
-                                                <p><i class="far fa-clock"></i> ${formattedTime}</p>
-                                            </div>
-                                            ${isPastEvent && event.id ? `
-                                                <button class="btn results-btn" data-race-id="${event.id}">
-                                                    <i class="fas fa-trophy"></i> Resultados
-                                                </button>
-                                            ` : ''}
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(modal);
-                    
-                    // Fechar modal
-                    modal.querySelector('.close').addEventListener('click', () => {
-                        document.body.removeChild(modal);
-                    });
-                    
-                    // Fechar com clique fora
-                    modal.addEventListener('click', (e) => {
-                        if (e.target === modal) {
-                            document.body.removeChild(modal);
-                        }
-                    });
-                    
-                    // Adicionar evento para botões de resultados dentro do modal
-                    modal.querySelectorAll('.results-btn').forEach(resultBtn => {
-                        resultBtn.addEventListener('click', async (e) => {
-                            const raceId = e.currentTarget.dataset.raceId;
-                            
-                            try {
-                                e.currentTarget.textContent = 'Carregando...';
-                                e.currentTarget.disabled = true;
-                                
-                                const results = await F1API.getRaceResults(raceId);
-                                
-                                // Criar modal para exibir os resultados
-                                const resultsModal = document.createElement('div');
-                                resultsModal.className = 'modal results-modal';
-                                resultsModal.innerHTML = `
-                                    <div class="modal-content">
-                                        <span class="close">&times;</span>
-                                        <h2><i class="fas fa-trophy"></i> Resultados</h2>
-                                        <p><i class="fas fa-info-circle"></i> ${event.name || event.type || 'Evento'} - ${new Date(event.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                        
-                                        <table class="results-table">
-                                            <thead>
-                                                <tr>
-                                                    <th class="col-position" width="50">Pos</th>
-                                                    <th class="col-driver">Piloto</th>
-                                                    <th class="col-team hide-on-mobile">Equipe</th>
-                                                    <th class="col-points hide-on-mobile" width="60">Pontos</th>
-                                                    <th class="col-status">Tempo/Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${results.map((result, index) => {
-                                                    // Destacar os três primeiros colocados
-                                                    let positionClass = 'col-position';
-                                                    if (index === 0) positionClass += ' position-gold';
-                                                    else if (index === 1) positionClass += ' position-silver';
-                                                    else if (index === 2) positionClass += ' position-bronze';
-                                                    
-                                                    // Verificar se o status indica abandono
-                                                    const statusClass = (result.status && result.status.toLowerCase().includes('retired')) ? 'col-status retired' : 'col-status';
-                                                    
-                                                    return `
-                                                        <tr>
-                                                            <td class="${positionClass}" data-label="Pos">${result.position}</td>
-                                                            <td class="col-driver" data-label="Piloto"><strong>${result.driver.name}</strong></td>
-                                                            <td class="col-team hide-on-mobile" data-label="Equipe">${result.team.name}</td>
-                                                            <td class="col-points hide-on-mobile" data-label="Pontos">${result.points}</td>
-                                                            <td class="${statusClass}" data-label="Tempo/Status" data-status="${result.status || ''}">${result.time || result.status || 'N/A'}</td>
-                                                        </tr>
-                                                    `;
-                                                }).join('')}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                `;
-                                
-                                document.body.appendChild(resultsModal);
-                                
-                                // Melhorar a aparência da tabela de resultados
-                                enhanceTableAppearance();
-                                
-                                // Fechar modal de resultados
-                                resultsModal.querySelector('.close').addEventListener('click', () => {
-                                    document.body.removeChild(resultsModal);
-                                });
-                                
-                                // Fechar com clique fora
-                                resultsModal.addEventListener('click', (e) => {
-                                    if (e.target === resultsModal) {
-                                        document.body.removeChild(resultsModal);
-                                    }
-                                });
-                                
-                                e.currentTarget.textContent = 'Ver resultados';
-                                e.currentTarget.disabled = false;
-                            } catch (error) {
-                                e.currentTarget.textContent = 'Erro';
-                                setTimeout(() => {
-                                    e.currentTarget.textContent = 'Ver resultados';
-                                    e.currentTarget.disabled = false;
-                                }, 2000);
-                            }
-                        });
-                    });
-                });
-            });
+            console.log('Dados de corridas processados:', allRacesData.length);
+            
+            // Renderizar corridas
+            const filteredRaces = filterAndSortRaces();
+            console.log('Corridas filtradas para renderização:', filteredRaces.length);
+            renderRaces(filteredRaces);
         } catch (error) {
-            showError('Erro ao carregar o calendário de corridas. Por favor, tente novamente.', racesList);
+            console.error('Erro ao carregar corridas:', error);
+            const racesListContainer = document.getElementById('races-list-container');
+            if (racesListContainer) {
+                showError('Erro ao carregar o calendário de corridas. Por favor, tente novamente.', racesListContainer);
+            }
+            
+            notifications.add(
+                'Erro ao Carregar Corridas',
+                'Não foi possível carregar o calendário. Tente novamente mais tarde.',
+                'error'
+            );
         }
     };
 
@@ -917,6 +1025,246 @@ document.addEventListener('DOMContentLoaded', () => {
             debouncedTeamSearch(e.target.value);
         });
     }
+
+    // Eventos para filtros e ordenação de corridas
+    const raceFilterSelect = document.getElementById('race-filter');
+    const raceSortSelect = document.getElementById('race-sort');
+    const raceSearchInput = document.getElementById('race-search');
+    const viewToggleBtn = document.getElementById('view-toggle');
+    
+    if (raceFilterSelect) {
+        raceFilterSelect.addEventListener('change', () => {
+            renderRaces(filterAndSortRaces());
+        });
+    }
+    
+    if (raceSortSelect) {
+        raceSortSelect.addEventListener('change', () => {
+            renderRaces(filterAndSortRaces());
+        });
+    }
+    
+    if (raceSearchInput) {
+        const debouncedRaceSearch = debounce((query) => {
+            renderRaces(filterAndSortRaces());
+        }, 300);
+        
+        raceSearchInput.addEventListener('input', (e) => {
+            debouncedRaceSearch(e.target.value);
+        });
+    }
+    
+    if (viewToggleBtn) {
+        viewToggleBtn.addEventListener('click', () => {
+            currentRacesView = currentRacesView === 'grid' ? 'list' : 'grid';
+            const icon = viewToggleBtn.querySelector('i');
+            if (currentRacesView === 'list') {
+                icon.className = 'fas fa-th-large';
+                viewToggleBtn.setAttribute('title', 'Visualização em grid');
+            } else {
+                icon.className = 'fas fa-th';
+                viewToggleBtn.setAttribute('title', 'Visualização em lista');
+            }
+            renderRaces(filterAndSortRaces());
+        });
+    }
+
+    // Event delegation para botões de detalhes das corridas
+    const racesListContainer = document.getElementById('races-list-container');
+    if (racesListContainer) {
+        racesListContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.view-events-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.view-events-btn');
+                const gpCard = btn.closest('.race-card');
+                const gpIndex = parseInt(gpCard.dataset.gpIndex);
+                const gp = allRacesData.find(g => g.originalIndex === gpIndex);
+                if (!gp) return;
+                
+                // Criar modal com os eventos do GP
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                
+                // Ordenar eventos por data
+                const sortedEvents = [...gp.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>${gp.competition.name}</h2>
+                        <p><i class="fas fa-map-marker-alt"></i> ${gp.circuit.name}, ${gp.city}, ${gp.country}</p>
+                        
+                        <h3 class="mt-4"><i class="fas fa-calendar-alt"></i> Eventos</h3>
+                        <div class="events-list">
+                            ${sortedEvents.map(event => {
+                                const eventDate = new Date(event.date);
+                                const isPastEvent = eventDate < new Date();
+                                
+                                // Definir ícone com base no tipo de evento
+                                let eventIcon = 'flag-checkered';
+                                let eventTypeLabel = 'Sessão';
+                                
+                                if (event.type) {
+                                    const type = event.type.toLowerCase();
+                                    if (type.includes('treino') || type.includes('practice')) {
+                                        eventIcon = 'stopwatch';
+                                        eventTypeLabel = 'Treino Livre';
+                                    } else if (type.includes('classificação') || type.includes('qualifying')) {
+                                        eventIcon = 'chart-line';
+                                        eventTypeLabel = 'Classificação';
+                                    } else if (type.includes('sprint')) {
+                                        eventIcon = 'tachometer-alt';
+                                        eventTypeLabel = 'Sprint';
+                                    } else if (type.includes('corrida') || type.includes('race')) {
+                                        eventIcon = 'flag-checkered';
+                                        eventTypeLabel = 'Corrida';
+                                    }
+                                }
+                                
+                                // Formatar data e hora
+                                const formattedDate = eventDate.toLocaleDateString('pt-BR', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                });
+                                
+                                // Formatar hora se disponível
+                                const formattedTime = event.time 
+                                    ? new Date(`2023-01-01T${event.time}`).toLocaleTimeString('pt-BR', { 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                      }) 
+                                    : 'Horário não definido';
+                                
+                                return `
+                                    <div class="event-card ${isPastEvent ? 'past' : 'upcoming'}">
+                                        <div class="event-icon">
+                                            <i class="fas fa-${eventIcon}"></i>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-type">${event.type || eventTypeLabel}</div>
+                                            <h4>${event.name || event.type || 'Evento'}</h4>
+                                            <p><i class="far fa-calendar"></i> ${formattedDate}</p>
+                                            <p><i class="far fa-clock"></i> ${formattedTime}</p>
+                                        </div>
+                                        ${isPastEvent && event.id ? `
+                                            <button class="btn results-btn" data-race-id="${event.id}">
+                                                <i class="fas fa-trophy"></i> Resultados
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Fechar modal
+                modal.querySelector('.close').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                // Fechar com clique fora
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+                
+                // Adicionar evento para botões de resultados dentro do modal
+                modal.querySelectorAll('.results-btn').forEach(resultBtn => {
+                    resultBtn.addEventListener('click', async (e) => {
+                        const raceId = e.currentTarget.dataset.raceId;
+                        
+                        // Encontrar o evento correspondente
+                        const eventData = sortedEvents.find(ev => ev.id == raceId);
+                        if (!eventData) return;
+                        
+                        try {
+                            e.currentTarget.textContent = 'Carregando...';
+                            e.currentTarget.disabled = true;
+                            
+                            const results = await F1API.getRaceResults(raceId);
+                            
+                            // Criar modal para exibir os resultados
+                            const resultsModal = document.createElement('div');
+                            resultsModal.className = 'modal results-modal';
+                            resultsModal.innerHTML = `
+                                <div class="modal-content">
+                                    <span class="close">&times;</span>
+                                    <h2><i class="fas fa-trophy"></i> Resultados</h2>
+                                    <p><i class="fas fa-info-circle"></i> ${eventData.name || eventData.type || 'Evento'} - ${new Date(eventData.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                    
+                                    <table class="results-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-position" width="50">Pos</th>
+                                                <th class="col-driver">Piloto</th>
+                                                <th class="col-team hide-on-mobile">Equipe</th>
+                                                <th class="col-points hide-on-mobile" width="60">Pontos</th>
+                                                <th class="col-status">Tempo/Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${results.map((result, index) => {
+                                                // Destacar os três primeiros colocados
+                                                let positionClass = 'col-position';
+                                                if (index === 0) positionClass += ' position-gold';
+                                                else if (index === 1) positionClass += ' position-silver';
+                                                else if (index === 2) positionClass += ' position-bronze';
+                                                
+                                                // Verificar se o status indica abandono
+                                                const statusClass = (result.status && result.status.toLowerCase().includes('retired')) ? 'col-status retired' : 'col-status';
+                                                
+                                                return `
+                                                    <tr>
+                                                        <td class="${positionClass}" data-label="Pos">${result.position}</td>
+                                                        <td class="col-driver" data-label="Piloto"><strong>${result.driver.name}</strong></td>
+                                                        <td class="col-team hide-on-mobile" data-label="Equipe">${result.team.name}</td>
+                                                        <td class="col-points hide-on-mobile" data-label="Pontos">${result.points}</td>
+                                                        <td class="${statusClass}" data-label="Tempo/Status" data-status="${result.status || ''}">${result.time || result.status || 'N/A'}</td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            
+                            document.body.appendChild(resultsModal);
+                            
+                            // Melhorar a aparência da tabela de resultados
+                            enhanceTableAppearance();
+                            
+                            // Fechar modal de resultados
+                            resultsModal.querySelector('.close').addEventListener('click', () => {
+                                document.body.removeChild(resultsModal);
+                            });
+                            
+                            // Fechar com clique fora
+                            resultsModal.addEventListener('click', (e) => {
+                                if (e.target === resultsModal) {
+                                    document.body.removeChild(resultsModal);
+                                }
+                            });
+                            
+                            e.currentTarget.textContent = 'Ver resultados';
+                            e.currentTarget.disabled = false;
+                        } catch (error) {
+                            e.currentTarget.textContent = 'Erro';
+                            setTimeout(() => {
+                                e.currentTarget.textContent = 'Ver resultados';
+                                e.currentTarget.disabled = false;
+                            }, 2000);
+                        }
+                    });
+                });
+            }
+        });
+    }
     
     // Carregar a página inicial com os dados de pilotos
     loadDrivers();
@@ -936,39 +1284,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.innerHTML = `<i class="fas fa-${newTheme === 'light' ? 'moon' : 'sun'}"></i>`;
     };
 
-    /**
-     * Criar skeleton loader para cards
-     * @param {number} count - Número de skeletons
-     * @returns {string} - HTML dos skeletons
-     */
-    const createSkeletonLoaders = (count = 6) => {
-        return Array.from({ length: count }, () => `
-            <div class="skeleton-card skeleton" role="status" aria-label="Carregando">
-                <div class="skeleton-header skeleton"></div>
-                <div class="skeleton-image skeleton"></div>
-                <div class="skeleton-line skeleton"></div>
-                <div class="skeleton-line short skeleton"></div>
-                <div class="skeleton-line medium skeleton"></div>
-            </div>
-        `).join('');
-    };
-
-    /**
-     * Exibir estado vazio melhorado
-     * @param {HTMLElement} container - Container onde exibir
-     * @param {string} icon - Ícone Font Awesome
-     * @param {string} title - Título
-     * @param {string} message - Mensagem
-     */
-    const showEmptyState = (container, icon = 'fa-inbox', title = 'Nenhum resultado', message = 'Não encontramos nenhum resultado para sua busca.') => {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas ${icon}" aria-hidden="true"></i>
-                <h3>${title}</h3>
-                <p>${message}</p>
-            </div>
-        `;
-    };
 
     /**
      * Realizar busca rápida com debounce
@@ -1118,60 +1433,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Sistema de Notificações
-     */
-    const notifications = {
-        items: [],
-        
-        add(title, message, type = 'info') {
-            const notification = {
-                id: Date.now(),
-                title,
-                message,
-                type,
-                time: new Date(),
-                read: false
-            };
-            
-            this.items.unshift(notification);
-            this.updateUI();
-            this.updateBadge();
-        },
-        
-        markAsRead(id) {
-            const notification = this.items.find(item => item.id === id);
-            if (notification) {
-                notification.read = true;
-                this.updateUI();
-                this.updateBadge();
-            }
-        },
-        
-        updateUI() {
-            if (this.items.length === 0) {
-                notificationsList.innerHTML = '<p class="empty-notification">Sem notificações no momento.</p>';
-                return;
-            }
-            
-            notificationsList.innerHTML = this.items.map(notification => `
-                <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
-                    <i class="notification-icon fas fa-${notification.type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i>
-                    <div class="notification-content">
-                        <h4>${notification.title}</h4>
-                        <p>${notification.message}</p>
-                        <div class="notification-time">${notification.time.toLocaleTimeString('pt-BR')}</div>
-                    </div>
-                </div>
-            `).join('');
-        },
-        
-        updateBadge() {
-            const unreadCount = this.items.filter(item => !item.read).length;
-            notificationBadge.textContent = unreadCount;
-            notificationBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
-        }
-    };
 
     // Event Listeners para as novas funcionalidades
     themeToggleBtn.addEventListener('click', toggleTheme);
