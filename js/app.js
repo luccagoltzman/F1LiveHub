@@ -6,7 +6,7 @@ import F1API from './api.js';
  */
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos do DOM
-    const navLinks = document.querySelectorAll('nav a');
+    const navLinks = document.querySelectorAll('#bottom-nav .nav-item');
     const pages = document.querySelectorAll('.page');
     const driverGrid = document.querySelector('.drivers-grid');
     const teamsGrid = document.querySelector('.teams-grid');
@@ -27,69 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationsList = document.getElementById('notifications-list');
     const notificationBadge = document.querySelector('.notification-badge');
 
-    // Adicionar seletor de temporada atual
-    const seasonControls = document.createElement('div');
-    seasonControls.className = 'season-controls';
-    
-    const currentSeasonSelect = document.createElement('select');
-    currentSeasonSelect.id = 'current-season-select';
-    currentSeasonSelect.innerHTML = `
-        <option value="2024">Temporada 2024</option>
-        <option value="2025">Temporada 2025</option>
-    `;
-    currentSeasonSelect.value = '2025'; // Define 2025 como padrão
-    
-    seasonControls.appendChild(currentSeasonSelect);
-    
-    // Adicionar o seletor ao header, após a navegação
-    const nav = document.querySelector('header nav');
-    nav.appendChild(seasonControls);
+    // Seletor de temporada (já existe no HTML)
+    const currentSeasonSelect = document.getElementById('current-season-select');
+    if (currentSeasonSelect) {
+        currentSeasonSelect.value = '2025'; // Define 2025 como padrão
+    }
 
-    // Menu Mobile
-    const menuToggle = document.getElementById('menu-toggle');
-    const overlay = document.getElementById('overlay');
-
-    const toggleMenu = (e) => {
-        if (e && e.target === overlay) {
-            // Se o clique foi no overlay, fecha o menu
-            nav.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            menuToggle.setAttribute('aria-expanded', 'false');
-        } else {
-            // Se o clique foi no botão do menu, alterna o estado
-            const isActive = nav.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = isActive ? 'hidden' : '';
-            menuToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
-        }
-    };
-
-    menuToggle.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', toggleMenu);
-
-    // Fechar menu ao clicar em um link
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.stopPropagation(); // Impede que o clique se propague para o overlay
-            if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    nav.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }, 150); // Pequeno delay para melhor experiência do usuário
-            }
-        });
-    });
-
-    // Fechar menu ao redimensionar a tela para desktop
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768 && nav.classList.contains('active')) {
-            nav.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    });
+    // Bottom Navigation - Menu estilo app
 
     /**
      * Exibe uma mensagem de erro 
@@ -138,12 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetPage = e.currentTarget.dataset.page;
         
         // Remover classe active de todos os links e páginas
-        navLinks.forEach(link => link.classList.remove('active'));
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+        });
         pages.forEach(page => page.classList.remove('active'));
         
         // Adicionar classe active ao link e página selecionados
         e.currentTarget.classList.add('active');
-        document.getElementById(targetPage).classList.add('active');
+        e.currentTarget.setAttribute('aria-current', 'page');
+        const targetPageElement = document.getElementById(targetPage);
+        if (targetPageElement) {
+            targetPageElement.classList.add('active');
+        }
         
         // Sempre carregar os dados quando navegar para uma página, independente do dispositivo
         if (targetPage === 'drivers') {

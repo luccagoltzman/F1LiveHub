@@ -110,9 +110,15 @@ header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     flex-wrap: wrap;
-    height: 70px;
+    min-height: 70px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .logo {
@@ -140,81 +146,148 @@ header .container {
     border-radius: 2px;
 }
 
-nav {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    height: 100%;
-}
-
-nav ul {
-    display: flex;
-    list-style: none;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    align-items: center;
-}
-
-nav li {
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-
-nav a {
-    color: var(--text-light);
-    text-decoration: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-}
-
-nav a::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
-}
-
-nav a:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-}
-
-nav a:hover::before {
-    left: 100%;
-}
-
-nav a.active {
-    color: var(--text-light);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    font-weight: 600;
-    box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3);
-}
-
-nav a.active::after {
-    content: '';
-    position: absolute;
+/* Bottom Navigation Menu - Estilo App */
+.bottom-nav {
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 0 0 8px 8px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    z-index: 1000;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-nav a.active:hover {
-    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
-    transform: translateY(-2px) scale(1.05);
+.bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    position: relative;
+    flex: 1;
+    max-width: 80px;
+    min-height: 60px;
+}
+
+.bottom-nav .nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 40px;
+    height: 40px;
+    background: rgba(225, 6, 0, 0.1);
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bottom-nav .nav-item:active::before {
+    transform: translateX(-50%) scale(1);
+}
+
+.bottom-nav .nav-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.bottom-nav .nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.bottom-nav .nav-item:hover {
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.bottom-nav .nav-item:hover .nav-icon {
+    transform: scale(1.15);
+}
+
+.bottom-nav .nav-item.active {
+    color: var(--primary-color);
+}
+
+.bottom-nav .nav-item.active::before {
+    transform: translateX(-50%) scale(1);
+    background: rgba(225, 6, 0, 0.15);
+}
+
+.bottom-nav .nav-item.active .nav-icon {
+    transform: scale(1.2);
+    color: var(--primary-color);
+}
+
+.bottom-nav .nav-item.active .nav-label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.bottom-nav .nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 0 0 3px 3px;
+}
+
+/* Ajustes para telas maiores - manter bottom nav mas com mais espaço */
+@media (min-width: 769px) {
+    .bottom-nav {
+        padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+    }
+    
+    .bottom-nav .nav-item {
+        padding: 10px 16px;
+        min-height: 70px;
+        max-width: 100px;
+    }
+    
+    .bottom-nav .nav-icon {
+        font-size: 1.4rem;
+        width: 26px;
+        height: 26px;
+    }
+    
+    .bottom-nav .nav-label {
+        font-size: 0.75rem;
+    }
+}
+
+/* Suporte para safe area (notch dos iPhones) */
+@supports (padding: max(0px)) {
+    .bottom-nav {
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
 }
 
 /* Botão de alternância do tema */
@@ -274,6 +347,7 @@ nav a.active:hover {
 /* Main Content */
 main {
     padding: 40px 0;
+    padding-bottom: calc(40px + 80px); /* Espaço para o bottom nav */
     min-height: calc(100vh - 140px);
 }
 
@@ -2335,112 +2409,36 @@ main {
         font-size: 0.9rem;
     }
     
-    /* Menu Mobile */
+    /* Ajustes para mobile */
     header .container {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 0.7rem 1rem 0.7rem 4rem;
-    }
-    
-    .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 1.2rem;
-        left: 1.2rem;
-        z-index: 1002;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 6px;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .menu-toggle:hover {
-        background: var(--primary-hover);
-    }
-    
-    nav {
-        position: fixed;
-        top: 0;
-        left: -300px;
-        width: 300px;
-        height: 100vh;
-        background-color: var(--secondary-color);
-        padding: 5rem 1.5rem 1.5rem;
-        transition: transform 0.3s ease;
-        z-index: 1001;
-        flex-direction: column;
-        align-items: flex-start;
-        overflow-y: auto;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    }
-    
-    nav.active {
-        transform: translateX(300px);
-    }
-    
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-        gap: 0.7rem;
-    }
-    
-    nav li {
-        width: 100%;
-    }
-    
-    nav a {
-        display: block;
         padding: 1rem;
-        width: 100%;
-        text-align: left;
-        border-radius: var(--border-radius);
     }
     
-    .season-controls {
-        width: 100%;
-        margin: 1.5rem 0;
-        justify-content: center;
+    .header-actions {
+        gap: 0.5rem;
     }
     
-    #current-season-select {
-        width: 100%;
-        max-width: 200px;
+    .bottom-nav {
+        padding: 6px 0 max(6px, env(safe-area-inset-bottom));
     }
     
-    .theme-toggle {
-        margin: 1rem 0;
-        width: 100%;
-        justify-content: center;
+    .bottom-nav .nav-item {
+        padding: 6px 8px;
+        min-height: 56px;
+        max-width: 70px;
     }
     
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 300px;
-        width: calc(100% - 300px);
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        backdrop-filter: blur(3px);
+    .bottom-nav .nav-icon {
+        font-size: 1.2rem;
+        width: 22px;
+        height: 22px;
     }
     
-    .overlay.active {
-        display: block;
-        opacity: 1;
+    .bottom-nav .nav-label {
+        font-size: 0.65rem;
     }
     
-    nav:not(.active) + .overlay.active {
-        left: 0;
-        width: 100%;
-    }
+    /* Bottom nav já está fixo, não precisa de ajustes aqui */
 }
 
 @media (max-width: 480px) {
@@ -2532,7 +2530,6 @@ main {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-left: 1.5rem;
     position: relative;
 }
 
@@ -2603,104 +2600,7 @@ main {
     }
 }
 
-/* Menu Mobile */
-.menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--text-light);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    z-index: 1001;
-}
-
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        z-index: 1002;
-    }
-
-    nav {
-        position: fixed;
-        top: 0;
-        left: -280px;
-        width: 280px;
-        height: 100vh;
-        background-color: var(--secondary-color);
-        padding: 4rem 1rem 1rem;
-        transition: transform 0.3s ease;
-        z-index: 1001;
-        flex-direction: column;
-        align-items: flex-start;
-        overflow-y: auto;
-    }
-
-    nav.active {
-        transform: translateX(280px);
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-    }
-
-    nav ul {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    nav a {
-        display: block;
-        padding: 1rem;
-        width: 100%;
-        text-align: left;
-        border-radius: 4px;
-    }
-
-    nav a:hover {
-        background-color: var(--primary-color);
-    }
-
-    .season-controls {
-        width: 100%;
-        margin: 1rem 0;
-    }
-
-    #current-season-select {
-        width: 100%;
-    }
-
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 280px;
-        width: calc(100% - 280px);
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .overlay.active {
-        display: block;
-        opacity: 1;
-    }
-
-    header .container {
-        padding-left: 4rem;
-    }
-
-    .theme-toggle {
-        margin: 1rem 0;
-    }
-
-    nav:not(.active) + .overlay.active {
-        left: 0;
-        width: 100%;
-    }
-}
+/* Menu Mobile - Removido (agora usamos bottom nav) */
 
 /* Animações e efeitos */
 @keyframes pulse {
@@ -2773,7 +2673,7 @@ main {
 footer {
     background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-dark) 100%);
     color: var(--text-light);
-    padding: 50px 0 30px;
+    padding: 50px 0 calc(30px + 80px); /* Espaço para o bottom nav */
     text-align: center;
     margin-top: 80px;
     position: relative;

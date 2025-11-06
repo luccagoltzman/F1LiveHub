@@ -57,29 +57,59 @@
     </div>
 
     <header role="banner">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Menu de navegação" aria-expanded="false" aria-controls="main-nav">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
         <div class="container">
             <div class="logo">
                 <h1>F1LiveHub</h1>
             </div>
-            <nav id="main-nav" role="navigation" aria-label="Navegação principal">
-                <ul>
-                    <li><a href="#" class="active" data-page="home" aria-current="page"><i class="fas fa-home" aria-hidden="true"></i> <span>Início</span></a></li>
-                    <li><a href="#" data-page="drivers"><i class="fas fa-user-astronaut" aria-hidden="true"></i> <span>Pilotos</span></a></li>
-                    <li><a href="#" data-page="teams"><i class="fas fa-car-side" aria-hidden="true"></i> <span>Equipes</span></a></li>
-                    <li><a href="#" data-page="races"><i class="fas fa-flag-checkered" aria-hidden="true"></i> <span>Corridas</span></a></li>
-                    <li><a href="#" data-page="standings"><i class="fas fa-trophy" aria-hidden="true"></i> <span>Classificação</span></a></li>
-                </ul>
+            <div class="header-actions">
+                <div class="season-controls">
+                    <select id="current-season-select">
+                        <option value="2024">Temporada 2024</option>
+                        <option value="2025">Temporada 2025</option>
+                    </select>
+                </div>
                 <div class="theme-toggle">
                     <button id="theme-toggle-btn" aria-label="Alternar tema claro/escuro" title="Alternar tema">
                         <i class="fas fa-moon" aria-hidden="true"></i>
                     </button>
                 </div>
-            </nav>
+            </div>
         </div>
     </header>
+
+    <!-- Bottom Navigation Menu -->
+    <nav id="bottom-nav" class="bottom-nav" role="navigation" aria-label="Navegação principal">
+        <a href="#" class="nav-item active" data-page="home" aria-current="page">
+            <div class="nav-icon">
+                <i class="fas fa-home" aria-hidden="true"></i>
+            </div>
+            <span class="nav-label">Início</span>
+        </a>
+        <a href="#" class="nav-item" data-page="drivers">
+            <div class="nav-icon">
+                <i class="fas fa-user-astronaut" aria-hidden="true"></i>
+            </div>
+            <span class="nav-label">Pilotos</span>
+        </a>
+        <a href="#" class="nav-item" data-page="teams">
+            <div class="nav-icon">
+                <i class="fas fa-car-side" aria-hidden="true"></i>
+            </div>
+            <span class="nav-label">Equipes</span>
+        </a>
+        <a href="#" class="nav-item" data-page="races">
+            <div class="nav-icon">
+                <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+            </div>
+            <span class="nav-label">Corridas</span>
+        </a>
+        <a href="#" class="nav-item" data-page="standings">
+            <div class="nav-icon">
+                <i class="fas fa-trophy" aria-hidden="true"></i>
+            </div>
+            <span class="nav-label">Classificação</span>
+        </a>
+    </nav>
 
     <div class="overlay" id="overlay"></div>
 
