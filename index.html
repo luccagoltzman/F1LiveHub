@@ -12,6 +12,14 @@
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#e10600">
     
+    <!-- Permissions Policy para melhorar performance e reduzir avisos -->
+    <!-- Nota: Alguns avisos podem ainda aparecer devido a scripts de terceiros (Instagram, Font Awesome) -->
+    <meta http-equiv="Permissions-Policy" content="unload=(), autoplay=(), fullscreen=(self), interest-cohort=(), geolocation=(), microphone=(), camera=()">
+    
+    <!-- Preconnect para melhorar performance do Instagram -->
+    <link rel="preconnect" href="https://www.instagram.com">
+    <link rel="dns-prefetch" href="https://www.instagram.com">
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="F1LiveHub - Seu Hub Completo de Fórmula 1">
@@ -47,7 +55,7 @@
     </main>
 
     <!-- Scripts -->
-    <script async src="//www.instagram.com/embed.js"></script>
+    <!-- Instagram embed será carregado apenas quando necessário -->
     <script type="module">
         // Inicializar componentes primeiro
         import { initializeComponents } from './js/components.js';

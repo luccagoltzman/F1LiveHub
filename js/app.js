@@ -106,10 +106,8 @@ function initializeApp() {
         } else if (targetPage === 'standings') {
             loadStandings();
         } else if (targetPage === 'news') {
-            // Inicializar embeds do Instagram quando a página de notícias for carregada
-            if (window.instgrm) {
-                window.instgrm.Embeds.process();
-            }
+            // Carregar e inicializar embeds do Instagram de forma otimizada
+            loadInstagramEmbeds();
             // Inicializar botões de compartilhamento
             initializeShareButtons();
         }
@@ -365,10 +363,24 @@ function initializeApp() {
         });
     };
 
+    // Flags para evitar carregamentos duplicados
+    let isLoadingDrivers = false;
+    let isLoadingTeams = false;
+    let isLoadingRaces = false;
+    let isLoadingStandings = false;
+
     /**
      * Carregar os pilotos da temporada selecionada
      */
     const loadDrivers = async () => {
+        // Evitar carregamentos duplicados
+        if (isLoadingDrivers) {
+            console.log('Carregamento de pilotos já em andamento, ignorando...');
+            return;
+        }
+        
+        isLoadingDrivers = true;
+        
         try {
             const selectedSeason = currentSeasonSelect.value;
             driverGrid.innerHTML = createSkeletonLoaders(6);
@@ -429,14 +441,25 @@ function initializeApp() {
             }
         } catch (error) {
             console.error('Erro ao carregar pilotos:', error);
-            showError('Erro ao carregar os pilotos. Por favor, tente novamente.', driverGrid);
+            
+            // Mensagem específica para erro 429
+            const isRateLimit = error.response && error.response.status === 429;
+            const errorMessage = isRateLimit 
+                ? 'Muitas requisições. Aguarde alguns instantes e tente novamente.'
+                : 'Erro ao carregar os pilotos. Por favor, tente novamente.';
+            
+            showError(errorMessage, driverGrid);
             
             // Notificar o usuário sobre o erro
             notifications.add(
                 'Erro ao Carregar Pilotos',
-                'Não foi possível carregar os dados. Tente novamente mais tarde.',
+                isRateLimit 
+                    ? 'Limite de requisições atingido. Aguarde um momento.'
+                    : 'Não foi possível carregar os dados. Tente novamente mais tarde.',
                 'error'
             );
+        } finally {
+            isLoadingDrivers = false;
         }
     };
 
@@ -537,11 +560,22 @@ function initializeApp() {
                     }
                 } catch (retryError) {
                     console.error(`Tentativa ${retryCount + 1} falhou: ${retryError.message}`);
+                    
+                    // Se for erro 429, aguardar mais tempo
+                    const isRateLimit = retryError.response && retryError.response.status === 429;
+                    
                     retryCount++;
                     
-                    // Esperar antes de tentar novamente (tempo exponencial)
+                    // Esperar antes de tentar novamente (tempo exponencial, maior para 429)
                     if (retryCount < maxRetries) {
-                        const waitTime = 1000 * Math.pow(2, retryCount);
+                        let waitTime;
+                        if (isRateLimit) {
+                            // Para 429, aguardar mais tempo (60s, 120s, 240s)
+                            waitTime = 60000 * Math.pow(2, retryCount - 1);
+                        } else {
+                            // Para outros erros, tempo exponencial normal
+                            waitTime = 1000 * Math.pow(2, retryCount);
+                        }
                         await new Promise(resolve => setTimeout(resolve, waitTime));
                     }
                 }
@@ -553,14 +587,25 @@ function initializeApp() {
             }
         } catch (error) {
             console.error('Erro ao carregar equipes:', error);
-            showError('Erro ao carregar as equipes. Por favor, tente novamente.', teamsGrid);
+            
+            // Mensagem específica para erro 429
+            const isRateLimit = error.response && error.response.status === 429;
+            const errorMessage = isRateLimit 
+                ? 'Muitas requisições. Aguarde alguns instantes e tente novamente.'
+                : 'Erro ao carregar as equipes. Por favor, tente novamente.';
+            
+            showError(errorMessage, teamsGrid);
             
             // Notificar o usuário sobre o erro
             notifications.add(
                 'Erro ao Carregar Equipes',
-                'Não foi possível carregar os dados. Tente novamente mais tarde.',
+                isRateLimit 
+                    ? 'Limite de requisições atingido. Aguarde um momento.'
+                    : 'Não foi possível carregar os dados. Tente novamente mais tarde.',
                 'error'
             );
+        } finally {
+            isLoadingTeams = false;
         }
     };
 
@@ -1467,25 +1512,46 @@ function initializeApp() {
     // Melhoria para o tema alternado
     const enhanceThemeToggle = () => {
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        if (!themeToggleBtn) return;
         
-        // Pulsar o botão de tema quando a página carregar para chamar atenção
-        setTimeout(() => {
+        // Usar requestIdleCallback quando disponível para melhor performance
+        const schedulePulse = (callback) => {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(callback, { timeout: 2000 });
+            } else {
+                setTimeout(callback, 2000);
+            }
+        };
+        
+        // Pulsar o botão de tema quando a página carregar (reduzido de 3s para 2s)
+        schedulePulse(() => {
             themeToggleBtn.classList.add('pulse');
             setTimeout(() => {
                 themeToggleBtn.classList.remove('pulse');
             }, 1000);
-        }, 3000);
+        });
     };
 
     // Função para exibir notificação de carregamento completo
     const showPageLoadedNotification = () => {
-        setTimeout(() => {
-            notifications.add(
-                'Página Carregada',
-                'Todos os dados foram carregados com sucesso!',
-                'success'
-            );
-        }, 1500);
+        // Usar requestIdleCallback para melhor performance
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                notifications.add(
+                    'Página Carregada',
+                    'Todos os dados foram carregados com sucesso!',
+                    'success'
+                );
+            }, { timeout: 1000 });
+        } else {
+            setTimeout(() => {
+                notifications.add(
+                    'Página Carregada',
+                    'Todos os dados foram carregados com sucesso!',
+                    'success'
+                );
+            }, 1000);
+        }
     };
 
     // Função para melhorar o posicionamento das tabelas
@@ -1559,7 +1625,7 @@ function initializeApp() {
             if (newIsMobile !== isMobile) {
                 setTimeout(() => enhanceTableAppearance(), 300);
             }
-        });
+        }, { passive: true });
     };
 
     // Atualizar imagens com lazy loading para melhor performance
@@ -1596,15 +1662,20 @@ function initializeApp() {
         enhanceThemeToggle();
         setupLazyLoading();
         
-        // Verificar e corrigir problemas de carregamento após 2 segundos
-        setTimeout(checkAndFixDataLoading, 2000);
+        // Verificar e corrigir problemas de carregamento (usar requestIdleCallback quando disponível)
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(checkAndFixDataLoading, { timeout: 2000 });
+        } else {
+            setTimeout(checkAndFixDataLoading, 2000);
+        }
         
         // Adicionar verificação também em mudanças de redimensionamento para mobile
+        // Usar passive: false pois precisamos verificar o tamanho da tela
         window.addEventListener('resize', () => {
             if (window.innerWidth <= 768) {
                 setTimeout(checkAndFixDataLoading, 500);
             }
-        });
+        }, { passive: true });
         
         // Executar as melhorias específicas após carregamento do conteúdo
         const observer = new MutationObserver((mutations) => {
@@ -1658,8 +1729,11 @@ function initializeApp() {
             loadStandings();
         } else if (pageId === 'home') {
             // Na página inicial, pré-carregamos os pilotos para quando o usuário navegar para essa seção
-            console.log('Pré-carregando pilotos na página inicial');
-            loadDrivers();
+            // Mas apenas se não estiver já carregando
+            if (!isLoadingDrivers) {
+                console.log('Pré-carregando pilotos na página inicial');
+                requestAnimationFrame(() => loadDrivers());
+            }
         }
     }
 
@@ -1774,6 +1848,116 @@ function initializeApp() {
             loadingStatus.textContent = 'Concluído';
             hideLoadingScreen();
         });
+    }
+
+    /**
+     * Carregar embeds do Instagram de forma otimizada (lazy loading)
+     */
+    function loadInstagramEmbeds() {
+        // Verificar se já existe algum embed do Instagram na página
+        const instagramEmbeds = document.querySelectorAll('.instagram-media');
+        
+        if (instagramEmbeds.length === 0) {
+            return; // Não há embeds para carregar
+        }
+
+        // Usar Intersection Observer para carregar apenas quando visível (lazy loading)
+        const observerOptions = {
+            root: null,
+            rootMargin: '50px',
+            threshold: 0.1
+        };
+
+        const embedObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const embed = entry.target;
+                    embedObserver.unobserve(embed);
+                    
+                    // Carregar script do Instagram apenas quando necessário
+                    loadInstagramScript(() => {
+                        processInstagramEmbed(embed);
+                    });
+                }
+            });
+        }, observerOptions);
+
+        // Observar cada embed
+        instagramEmbeds.forEach(embed => {
+            embedObserver.observe(embed);
+        });
+    }
+
+    /**
+     * Carregar script do Instagram
+     * @param {Function} callback - Callback quando script carregar
+     */
+    function loadInstagramScript(callback) {
+        if (window.instgrm && window.instgrm.Embeds) {
+            // Script já carregado
+            if (callback) callback();
+            return;
+        }
+
+        // Verificar se script já está sendo carregado
+        if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
+            // Aguardar script carregar (usar requestAnimationFrame para melhor performance)
+            let checkCount = 0;
+            const maxChecks = 50; // 5 segundos máximo (50 * 100ms)
+            
+            const checkReady = () => {
+                if (window.instgrm && window.instgrm.Embeds) {
+                    if (callback) callback();
+                    return;
+                }
+                
+                checkCount++;
+                if (checkCount < maxChecks) {
+                    requestAnimationFrame(() => {
+                        setTimeout(checkReady, 100);
+                    });
+                }
+            };
+            
+            checkReady();
+            return;
+        }
+
+        // Criar e carregar script
+        const script = document.createElement('script');
+        script.src = 'https://www.instagram.com/embed.js';
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = 'anonymous';
+        
+        script.onload = () => {
+            // Usar requestAnimationFrame para melhor performance e reduzir avisos
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (callback) callback();
+                });
+            });
+        };
+        
+        script.onerror = () => {
+            console.warn('Erro ao carregar script do Instagram');
+        };
+        
+        document.head.appendChild(script);
+    }
+
+    /**
+     * Processar um embed do Instagram
+     * @param {HTMLElement} embed - Elemento do embed
+     */
+    function processInstagramEmbed(embed) {
+        try {
+            if (window.instgrm && window.instgrm.Embeds) {
+                window.instgrm.Embeds.process();
+            }
+        } catch (error) {
+            console.warn('Erro ao processar embed do Instagram:', error);
+        }
     }
 
     /**
