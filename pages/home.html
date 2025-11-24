@@ -1,0 +1,49 @@
+<section id="home" class="page active">
+    <div class="hero">
+        <h2>Bem-vindo ao F1LiveHub</h2>
+        <p>Seu hub completo de informações sobre Fórmula 1</p>
+    </div>
+    <div class="quick-access">
+        <div class="card">
+            <i class="fas fa-user-astronaut"></i>
+            <h3>Pilotos</h3>
+            <p>Conheça todos os pilotos da atual temporada</p>
+            <a href="#" class="btn" data-page="drivers">Ver pilotos</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-car-side"></i>
+            <h3>Equipes</h3>
+            <p>Informações sobre todas as equipes da F1</p>
+            <a href="#" class="btn" data-page="teams">Ver equipes</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-flag-checkered"></i>
+            <h3>Corridas</h3>
+            <p>Calendário completo da temporada</p>
+            <a href="#" class="btn" data-page="races">Ver calendário</a>
+        </div>
+        <div class="card">
+            <i class="fas fa-trophy"></i>
+            <h3>Classificação</h3>
+            <p>Classificação de pilotos e construtores</p>
+            <a href="#" class="btn" data-page="standings">Ver classificação</a>
+        </div>
+    </div>
+    
+    <div class="search-container" role="search" aria-label="Busca rápida">
+        <h3><i class="fas fa-search" aria-hidden="true"></i> Busca Rápida</h3>
+        <div class="search-box">
+            <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe..." aria-label="Campo de busca rápida" autocomplete="off">
+            <button id="search-btn" aria-label="Executar busca"><i class="fas fa-search" aria-hidden="true"></i></button>
+        </div>
+        <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Resultados da busca"></div>
+    </div>
+    
+    <div class="notification-center">
+        <h3><i class="fas fa-bell"></i> Notificações <span class="notification-badge">0</span></h3>
+        <div id="notifications-list" class="notifications-list">
+            <p class="empty-notification">Sem notificações no momento.</p>
+        </div>
+    </div>
+</section>
+

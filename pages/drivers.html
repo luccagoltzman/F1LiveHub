@@ -1,0 +1,24 @@
+<section id="drivers" class="page" aria-labelledby="drivers-heading">
+    <div class="page-header">
+        <h2 id="drivers-heading"><i class="fas fa-user-astronaut" aria-hidden="true"></i> Pilotos da Temporada</h2>
+        <div class="page-controls">
+            <div class="search-box">
+                <input type="text" id="driver-search" placeholder="Buscar piloto..." aria-label="Buscar piloto">
+                <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
+            </div>
+            <div class="filter-controls">
+                <select id="driver-sort" aria-label="Ordenar pilotos" class="sort-select">
+                    <option value="position">Posição</option>
+                    <option value="points">Pontos</option>
+                    <option value="wins">Vitórias</option>
+                    <option value="name">Nome</option>
+                </select>
+                <select id="driver-filter" aria-label="Filtrar por equipe" class="filter-select">
+                    <option value="all">Todas as equipes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="drivers-grid" role="list" aria-label="Lista de pilotos"></div>
+</section>
+

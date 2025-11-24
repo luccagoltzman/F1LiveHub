@@ -1,0 +1,21 @@
+<section id="teams" class="page" aria-labelledby="teams-heading">
+    <div class="page-header">
+        <h2 id="teams-heading"><i class="fas fa-car-side" aria-hidden="true"></i> Equipes da Temporada</h2>
+        <div class="page-controls">
+            <div class="search-box">
+                <input type="text" id="team-search" placeholder="Buscar equipe..." aria-label="Buscar equipe">
+                <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
+            </div>
+            <div class="filter-controls">
+                <select id="team-sort" aria-label="Ordenar equipes" class="sort-select">
+                    <option value="position">Posição</option>
+                    <option value="points">Pontos</option>
+                    <option value="wins">Vitórias</option>
+                    <option value="name">Nome</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="teams-grid" role="list" aria-label="Lista de equipes"></div>
+</section>
+

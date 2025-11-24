@@ -29,309 +29,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="https://www.formula1.com/etc/designs/fom-website/favicon.ico" type="image/x-icon">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="img/logo_F!LiveHub.png">
+    <link rel="shortcut icon" type="image/png" href="img/logo_F!LiveHub.png">
+    <link rel="apple-touch-icon" href="img/logo_F!LiveHub.png">
     
 </head>
 <body>
-    <!-- Tela de Loading Inicial -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-brand">
-                <div class="loading-logo-wrapper">
-                    <span class="loading-logo">F1</span>
-                    <span class="loading-logo-text">LiveHub</span>
-                </div>
-                <div class="loading-subtitle">Seu hub completo de Fórmula 1</div>
-            </div>
-            <div class="loading-progress">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div class="loading-status" id="loading-status">Carregando...</div>
-            </div>
-            <button id="skip-intro" class="skip-intro" aria-label="Pular introdução">Pular</button>
-        </div>
-        <div class="loading-background">
-            <div class="racing-line"></div>
-        </div>
-    </div>
-
-    <header role="banner">
-        <div class="container">
-            <div class="logo">
-                <h1>F1LiveHub</h1>
-            </div>
-            <div class="header-actions">
-                <div class="season-controls">
-                    <select id="current-season-select">
-                        <option value="2024">Temporada 2024</option>
-                        <option value="2025">Temporada 2025</option>
-                    </select>
-                </div>
-                <div class="theme-toggle">
-                    <button id="theme-toggle-btn" aria-label="Alternar tema claro/escuro" title="Alternar tema">
-                        <i class="fas fa-moon" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Bottom Navigation Menu -->
-    <nav id="bottom-nav" class="bottom-nav" role="navigation" aria-label="Navegação principal">
-        <a href="#" class="nav-item active" data-page="home" aria-current="page">
-            <div class="nav-icon">
-                <i class="fas fa-home" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label">Início</span>
-        </a>
-        <a href="#" class="nav-item" data-page="drivers">
-            <div class="nav-icon">
-                <i class="fas fa-user-astronaut" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label">Pilotos</span>
-        </a>
-        <a href="#" class="nav-item" data-page="teams">
-            <div class="nav-icon">
-                <i class="fas fa-car-side" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label">Equipes</span>
-        </a>
-        <a href="#" class="nav-item" data-page="races">
-            <div class="nav-icon">
-                <i class="fas fa-flag-checkered" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label">Corridas</span>
-        </a>
-        <a href="#" class="nav-item" data-page="standings">
-            <div class="nav-icon">
-                <i class="fas fa-trophy" aria-hidden="true"></i>
-            </div>
-            <span class="nav-label">Classificação</span>
-        </a>
-    </nav>
-
+    <!-- Componentes serão carregados aqui via JavaScript -->
+    
     <div class="overlay" id="overlay"></div>
 
     <main>
         <div class="container">
-            <section id="home" class="page active">
-                <div class="hero">
-                    <h2>Bem-vindo ao F1LiveHub</h2>
-                    <p>Seu hub completo de informações sobre Fórmula 1</p>
-                </div>
-                <div class="quick-access">
-                    <div class="card">
-                        <i class="fas fa-user-astronaut"></i>
-                        <h3>Pilotos</h3>
-                        <p>Conheça todos os pilotos da atual temporada</p>
-                        <a href="#" class="btn" data-page="drivers">Ver pilotos</a>
-                    </div>
-                    <div class="card">
-                        <i class="fas fa-car-side"></i>
-                        <h3>Equipes</h3>
-                        <p>Informações sobre todas as equipes da F1</p>
-                        <a href="#" class="btn" data-page="teams">Ver equipes</a>
-                    </div>
-                    <div class="card">
-                        <i class="fas fa-flag-checkered"></i>
-                        <h3>Corridas</h3>
-                        <p>Calendário completo da temporada</p>
-                        <a href="#" class="btn" data-page="races">Ver calendário</a>
-                    </div>
-                    <div class="card">
-                        <i class="fas fa-trophy"></i>
-                        <h3>Classificação</h3>
-                        <p>Classificação de pilotos e construtores</p>
-                        <a href="#" class="btn" data-page="standings">Ver classificação</a>
-                    </div>
-                </div>
-                
-                <div class="search-container" role="search" aria-label="Busca rápida">
-                    <h3><i class="fas fa-search" aria-hidden="true"></i> Busca Rápida</h3>
-                    <div class="search-box">
-                        <input type="text" id="quick-search" placeholder="Buscar piloto ou equipe..." aria-label="Campo de busca rápida" autocomplete="off">
-                        <button id="search-btn" aria-label="Executar busca"><i class="fas fa-search" aria-hidden="true"></i></button>
-                    </div>
-                    <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Resultados da busca"></div>
-                </div>
-                
-                <div class="notification-center">
-                    <h3><i class="fas fa-bell"></i> Notificações <span class="notification-badge">0</span></h3>
-                    <div id="notifications-list" class="notifications-list">
-                        <p class="empty-notification">Sem notificações no momento.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="drivers" class="page" aria-labelledby="drivers-heading">
-                <div class="page-header">
-                    <h2 id="drivers-heading"><i class="fas fa-user-astronaut" aria-hidden="true"></i> Pilotos da Temporada</h2>
-                    <div class="page-controls">
-                        <div class="search-box">
-                            <input type="text" id="driver-search" placeholder="Buscar piloto..." aria-label="Buscar piloto">
-                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="filter-controls">
-                            <select id="driver-sort" aria-label="Ordenar pilotos" class="sort-select">
-                                <option value="position">Posição</option>
-                                <option value="points">Pontos</option>
-                                <option value="wins">Vitórias</option>
-                                <option value="name">Nome</option>
-                            </select>
-                            <select id="driver-filter" aria-label="Filtrar por equipe" class="filter-select">
-                                <option value="all">Todas as equipes</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="drivers-grid" role="list" aria-label="Lista de pilotos"></div>
-            </section>
-
-            <section id="teams" class="page" aria-labelledby="teams-heading">
-                <div class="page-header">
-                    <h2 id="teams-heading"><i class="fas fa-car-side" aria-hidden="true"></i> Equipes da Temporada</h2>
-                    <div class="page-controls">
-                        <div class="search-box">
-                            <input type="text" id="team-search" placeholder="Buscar equipe..." aria-label="Buscar equipe">
-                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="filter-controls">
-                            <select id="team-sort" aria-label="Ordenar equipes" class="sort-select">
-                                <option value="position">Posição</option>
-                                <option value="points">Pontos</option>
-                                <option value="wins">Vitórias</option>
-                                <option value="name">Nome</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="teams-grid" role="list" aria-label="Lista de equipes"></div>
-            </section>
-
-            <section id="races" class="page" aria-labelledby="races-heading">
-                <div class="page-header">
-                    <h2 id="races-heading"><i class="fas fa-flag-checkered" aria-hidden="true"></i> Calendário de Corridas</h2>
-                    <div class="page-controls">
-                        <div class="search-box">
-                            <input type="text" id="race-search" placeholder="Buscar por país ou circuito..." aria-label="Buscar corrida">
-                            <button class="search-btn" aria-label="Buscar"><i class="fas fa-search" aria-hidden="true"></i></button>
-                        </div>
-                        <div class="filter-controls">
-                            <select id="race-filter" aria-label="Filtrar por status" class="filter-select">
-                                <option value="all">Todas as corridas</option>
-                                <option value="upcoming">Próximas</option>
-                                <option value="past">Concluídas</option>
-                            </select>
-                            <select id="race-sort" aria-label="Ordenar corridas" class="sort-select">
-                                <option value="date">Data</option>
-                                <option value="name">Nome</option>
-                                <option value="country">País</option>
-                            </select>
-                            <button id="view-toggle" class="view-toggle-btn" aria-label="Alternar visualização" title="Alternar entre grid e lista">
-                                <i class="fas fa-th" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="races-stats" id="races-stats"></div>
-                <div class="races-list" id="races-list-container"></div>
-            </section>
-
-            <section id="standings" class="page">
-                <h2><i class="fas fa-trophy"></i> Classificação</h2>
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="driver-standings">Pilotos</button>
-                    <button class="tab-btn" data-tab="constructor-standings">Construtores</button>
-                </div>
-                <div class="tab-content">
-                    <div id="driver-standings" class="tab-pane active">
-                        <div class="loading-table" style="display:none;"></div>
-                        <table class="standings-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-position">Pos</th>
-                                    <th class="col-driver">Piloto</th>
-                                    <th class="col-team hide-on-mobile">Equipe</th>
-                                    <th class="col-points">Pontos</th>
-                                    <th class="col-wins hide-on-mobile">Vitórias</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Conteúdo carregado dinamicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="constructor-standings" class="tab-pane">
-                        <div class="loading-table" style="display:none;"></div>
-                        <table class="standings-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-position">Pos</th>
-                                    <th class="col-team">Equipe</th>
-                                    <th class="col-points">Pontos</th>
-                                    <th class="col-wins hide-on-mobile">Vitórias</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Conteúdo carregado dinamicamente -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="history" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-history"></i> Histórico de Temporadas</h2>
-                    <div class="season-selector">
-                        <select id="season-select">
-                            <option value="">Selecione uma temporada...</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="loading" id="history-loading">Selecione uma temporada para visualizar os dados...</div>
-                <div class="history-content" id="history-content">
-                    <!-- Conteúdo será carregado dinamicamente -->
-                </div>
-            </section>
+            <!-- Páginas serão carregadas aqui via JavaScript -->
         </div>
     </main>
-    
-    <!-- Template para modal de detalhes volta a volta -->
-    <template id="lap-by-lap-template">
-        <div class="lap-by-lap-container">
-            <h3><i class="fas fa-stopwatch"></i> Detalhes Volta a Volta</h3>
-            <div class="lap-chart-container">
-                <canvas id="lap-chart"></canvas>
-            </div>
-            <div class="laps-table-container">
-                <table class="laps-table">
-                    <thead>
-                        <tr>
-                            <th>Volta</th>
-                            <th>Piloto</th>
-                            <th>Tempo</th>
-                            <th>Pos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Dados de voltas aqui -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </template>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 F1LiveHub. Todos os direitos reservados.</p>
-            <p>Dados fornecidos pela API Formula 1</p>
-        </div>
-    </footer>
 
     <!-- Scripts -->
+    <script async src="//www.instagram.com/embed.js"></script>
+    <script type="module">
+        // Inicializar componentes primeiro
+        import { initializeComponents } from './js/components.js';
+        
+        // Carregar componentes quando o DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeComponents);
+        } else {
+            initializeComponents();
+        }
+    </script>
     <script type="module" src="js/api.js"></script>
     <script type="module" src="js/app.js"></script>
 </body>
-</html> 
+</html>

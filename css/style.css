@@ -3784,4 +3784,246 @@ a:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
     border-radius: 4px;
+}
+
+/* Estilos para a página de Notícias */
+.news-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.news-item {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: var(--transition);
+}
+
+.news-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.news-header h3 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+}
+
+.news-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.news-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.news-date i {
+    color: var(--primary-color);
+}
+
+.share-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-muted);
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.share-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-light);
+    transform: scale(1.1);
+}
+
+.share-btn:active {
+    transform: scale(0.95);
+}
+
+.share-btn i {
+    font-size: 0.85rem;
+}
+
+.news-content {
+    margin-bottom: 25px;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.news-content p {
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.news-content p:last-child {
+    margin-bottom: 0;
+}
+
+.news-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 20px 0;
+}
+
+.news-list li {
+    padding: 10px 0 10px 25px;
+    position: relative;
+    color: var(--text-color);
+}
+
+.news-list li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.news-video {
+    margin: 25px 0;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Aspect ratio 16:9 */
+    height: 0;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    background: var(--bg-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.instagram-wrapper {
+    padding-bottom: 0;
+    height: auto;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.instagram-wrapper blockquote {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto;
+}
+
+.video-caption {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+}
+
+.news-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.news-videos-grid .news-video {
+    margin: 0;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-top: -10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Responsividade para Notícias */
+@media (max-width: 768px) {
+    .news-item {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .news-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .news-header h3 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .news-header-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .news-date {
+        font-size: 0.85rem;
+    }
+
+    .share-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+
+    .news-content {
+        font-size: 0.95rem;
+    }
+
+    .news-videos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .instagram-wrapper {
+        min-height: 300px;
+    }
+
+    .video-caption {
+        font-size: 0.85rem;
+    }
 } 

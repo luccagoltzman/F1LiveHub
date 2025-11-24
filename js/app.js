@@ -4,7 +4,7 @@ import F1API from './api.js';
  * Aplicação principal do F1LiveHub
  * Gerencia a aplicação, manipula o DOM e interage com a API
  */
-document.addEventListener('DOMContentLoaded', () => {
+function initializeApp() {
     // Elementos do DOM
     const navLinks = document.querySelectorAll('#bottom-nav .nav-item');
     const pages = document.querySelectorAll('.page');
@@ -105,6 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
             loadRaces();
         } else if (targetPage === 'standings') {
             loadStandings();
+        } else if (targetPage === 'news') {
+            // Inicializar embeds do Instagram quando a página de notícias for carregada
+            if (window.instgrm) {
+                window.instgrm.Embeds.process();
+            }
+            // Inicializar botões de compartilhamento
+            initializeShareButtons();
         }
         
         // Se for um dispositivo móvel, verificar novamente após um curto período
@@ -1768,4 +1775,172 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoadingScreen();
         });
     }
-}); 
+
+    /**
+     * Inicializar botões de compartilhamento de notícias
+     */
+    function initializeShareButtons() {
+        const shareButtons = document.querySelectorAll('.share-btn');
+        
+        shareButtons.forEach(button => {
+            // Remover listeners anteriores se existirem
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const newsItem = newButton.closest('.news-item');
+                const newsTitle = newButton.getAttribute('data-news-title') || 'Notícia da F1';
+                const currentUrl = window.location.href;
+                
+                await shareNews(newsTitle, currentUrl, newButton);
+            });
+        });
+    }
+    
+    // Inicializar botões quando componentes forem carregados
+    document.addEventListener('componentsLoaded', () => {
+        setTimeout(() => {
+            if (document.querySelector('#news')?.classList.contains('active')) {
+                initializeShareButtons();
+            }
+        }, 100);
+    });
+
+    /**
+     * Compartilhar notícia
+     * @param {string} title - Título da notícia
+     * @param {string} url - URL para compartilhar
+     * @param {HTMLElement} button - Botão que foi clicado
+     */
+    async function shareNews(title, url, button) {
+        const shareData = {
+            title: `${title} - F1LiveHub`,
+            text: `Confira esta notícia sobre Fórmula 1: ${title}`,
+            url: url
+        };
+
+        // Tentar usar Web Share API (disponível em dispositivos móveis)
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            try {
+                await navigator.share(shareData);
+                showShareFeedback(button, 'Compartilhado!');
+            } catch (error) {
+                // Usuário cancelou ou erro ao compartilhar
+                if (error.name !== 'AbortError') {
+                    fallbackShare(title, url, button);
+                }
+            }
+        } else {
+            // Fallback: copiar link para área de transferência
+            fallbackShare(title, url, button);
+        }
+    }
+
+    /**
+     * Fallback para compartilhar (copiar link)
+     * @param {string} title - Título da notícia
+     * @param {string} url - URL para compartilhar
+     * @param {HTMLElement} button - Botão que foi clicado
+     */
+    async function fallbackShare(title, url, button) {
+        try {
+            await navigator.clipboard.writeText(`${title} - ${url}`);
+            showShareFeedback(button, 'Link copiado!');
+        } catch (error) {
+            // Fallback adicional: criar input temporário
+            const input = document.createElement('input');
+            input.value = `${title} - ${url}`;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showShareFeedback(button, 'Link copiado!');
+            } catch (err) {
+                document.body.removeChild(input);
+                showShareFeedback(button, 'Erro ao copiar', true);
+            }
+        }
+    }
+
+    /**
+     * Mostrar feedback visual ao compartilhar
+     * @param {HTMLElement} button - Botão que foi clicado
+     * @param {string} message - Mensagem de feedback
+     * @param {boolean} isError - Se é um erro
+     */
+    function showShareFeedback(button, message, isError = false) {
+        const originalHTML = button.innerHTML;
+        const icon = isError ? 'fa-times-circle' : 'fa-check';
+        
+        button.innerHTML = `<i class="fas ${icon}"></i>`;
+        button.style.background = isError ? 'var(--error-color)' : 'var(--success-color)';
+        button.style.borderColor = isError ? 'var(--error-color)' : 'var(--success-color)';
+        button.style.color = 'var(--text-light)';
+        
+        // Criar tooltip temporário
+        const tooltip = document.createElement('div');
+        tooltip.className = 'share-tooltip';
+        tooltip.textContent = message;
+        tooltip.style.cssText = `
+            position: absolute;
+            background: ${isError ? 'var(--error-color)' : 'var(--success-color)'};
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+        
+        const rect = button.getBoundingClientRect();
+        tooltip.style.top = `${rect.top - 40}px`;
+        tooltip.style.left = `${rect.left + rect.width / 2}px`;
+        tooltip.style.transform = 'translateX(-50%)';
+        
+        document.body.appendChild(tooltip);
+        
+        // Animar tooltip
+        setTimeout(() => {
+            tooltip.style.opacity = '1';
+        }, 10);
+        
+        // Restaurar botão após 2 segundos
+        setTimeout(() => {
+            tooltip.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(tooltip);
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+                button.style.borderColor = '';
+                button.style.color = '';
+            }, 300);
+        }, 2000);
+    }
+}
+
+// Aguardar carregamento dos componentes antes de inicializar a aplicação
+if (document.readyState === 'loading') {
+    document.addEventListener('componentsLoaded', initializeApp);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Se os componentes já foram carregados antes do DOMContentLoaded
+        if (document.querySelector('#bottom-nav')) {
+            initializeApp();
+        }
+    });
+} else {
+    // Se o DOM já está pronto, aguardar apenas os componentes
+    if (document.querySelector('#bottom-nav')) {
+        initializeApp();
+    } else {
+        document.addEventListener('componentsLoaded', initializeApp);
+    }
+} 
